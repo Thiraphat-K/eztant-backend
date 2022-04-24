@@ -129,11 +129,15 @@ const getMe = asyncHandler(async (req, res) => {
     user['likes'] = await recruitPostModel.find({likes: user._id})
     let recruit_posts = await scheduleModel.find({requested: user._id}).distinct('recruit_post_id')
     let communities =  await scheduleModel.find({accepted: user._id}).distinct('recruit_post_id')
-    console.log(communities);
     if (user.role == 'student') {
         user['requested'] = await recruitPostModel.find({_id: recruit_posts})
         user['communities'] = await communityModel.find({recruit_post_id: communities})
     }
+    if (user.role == 'teacher') {
+        user['recruit_posts'] = await recruitPostModel.find({_id: user._id})
+        user['communities'] = await communityModel.find({owner_id: user._id})
+    }
+
     res.status(200).json(user)
 })
 
