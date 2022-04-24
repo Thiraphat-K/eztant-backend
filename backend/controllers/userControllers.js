@@ -88,7 +88,7 @@ const updateUser = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Please add all fields')
     }
-    if (student && !(student_id && student_year)) {
+    if (role === 'student' && !(student_id && student_year)) {
         res.status(400)
         throw new Error('Please add student_id && student_year fields in student role')
     }
