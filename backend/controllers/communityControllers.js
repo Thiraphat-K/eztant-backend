@@ -8,19 +8,33 @@ const receiptModel = require('../models/receiptModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
 
-const getCommunity = asyncHandler(async (req, res) => {
-    const community = await communityModel.findById(req.community._id).populate([
-        {
-            path: 'community_posts',
-            select: '_id description likes comments createdAt',
-            populate: [
-                {
+const papulate_community_config = [
+    {
+        path: 'community_posts',
+        select: '_id description likes comments createdAt',
+        populate: [
+            {
+                path: 'owner_id',
+                select: '_id email firstname lastname role'
+            },
+            [{
+                path: 'likes',
+                select: '_id email firstname lastname role',
+            }],
+            [{
+                path: 'comments',
+                select: '-_id -updatedAt -__v',
+                populate: {
                     path: 'owner_id',
-                    select: '_id firstname lastname role imgURL'
+                    select: '_id email firstname lastname role'
                 }
-            ]
-        },
-    ])
+            }]
+        ]
+    }
+]
+
+const getCommunity = asyncHandler(async (req, res) => {
+    const community = await communityModel.findById(req.community._id).populate(papulate_community_config)
     res.status(201).json(community)
 })
 
@@ -39,18 +53,7 @@ const setCommunityPost = asyncHandler(async (req, res) => {
     }
     community.community_posts.push(community_post._id)
     await community.save()
-    const update_community = await communityModel.findById(community._id).populate([
-        {
-            path: 'community_posts',
-            select: '_id description likes comments createdAt',
-            populate: [
-                {
-                    path: 'owner_id',
-                    select: '_id firstname lastname role imgURL'
-                }
-            ]
-        },
-    ])
+    const update_community = await communityModel.findById(community._id).populate(papulate_community_config)
     if (update_community) {
         res.status(201).json(update_community)
     } else {

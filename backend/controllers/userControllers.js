@@ -4,7 +4,8 @@ const asyncHandler = require('express-async-handler');
 const userModel = require("../models/userModel");
 const recruitPostModel = require("../models/recruitPostModel");
 const communityModel = require("../models/communityModel");
-const scheduleModel = require('../models/scheduleModel')
+const scheduleModel = require('../models/scheduleModel');
+const { populate } = require("../models/userModel");
 
 // @desc    Register new user
 // @route   POST /api/users/register
@@ -129,13 +130,71 @@ const getMe = asyncHandler(async (req, res) => {
     user['likes'] = await recruitPostModel.find({likes: user._id})
     let recruit_posts = await scheduleModel.find({requested: user._id}).distinct('recruit_post_id')
     let communities =  await scheduleModel.find({accepted: user._id}).distinct('recruit_post_id')
+    const populate_config = [
+        {
+            path: 'owner_id',
+            select: '_id firstname lastname role imgURL'
+        },
+        [{
+            path: 'schedules',
+            select: ' -__v',
+            populate: [
+                [{
+                    path: 'requested',
+                    select: '_id firstname lastname student_id student_year role imgURL'
+                }],
+                [{
+                    path: 'accepted',
+                    select: '_id firstname lastname student_id student_year role imgURL'
+                }],
+            ]
+        }],
+        [{
+            path: 'comments',
+            select: '-_id -updatedAt -__v',
+            populate: [
+                {
+                    path: 'owner_id',
+                    select: '_id firstname lastname role imgURL'
+                },
+            ]
+        }],
+        [{
+            path: 'likes',
+            select: '_id firstname lastname role imgURL'
+        }],
+    ]
+    const populate_community_config = [
+        {
+            path: 'community_posts',
+            select: '_id description likes comments createdAt',
+            populate: [
+                {
+                    path: 'owner_id',
+                    select: '_id email firstname lastname role'
+                },
+                {
+                    path: 'likes',
+                    select: '_id email firstname lastname role',
+                },
+                {
+                    path: 'comments',
+                    select: '-_id -updatedAt -__v',
+                    populate: {
+                        path: 'owner_id',
+                        select: '_id email firstname lastname role'
+                    }
+                }
+            ]
+        }
+    ]
     if (user.role == 'student') {
-        user['requested'] = await recruitPostModel.find({_id: recruit_posts})
-        user['communities'] = await communityModel.find({recruit_post_id: communities})
+        user['requested'] = await recruitPostModel.find({_id: recruit_posts}).populate(populate_config)
+        user['communities'] = await communityModel.find({recruit_post_id: communities}).populate(populate_community_config)
     }
     if (user.role == 'teacher') {
-        user['recruit_posts'] = await recruitPostModel.find({_id: user._id})
-        user['communities'] = await communityModel.find({recruit_post_id: user['recruit_posts']})
+        user['recruit_posts'] = await recruitPostModel.find({_id: user._id}).populate(populate_config)
+        user['communities'] = await communityModel.find({recruit_post_id: user['recruit_posts']}).populate(populate_community_config)
     }
 
     res.status(200).json(user)

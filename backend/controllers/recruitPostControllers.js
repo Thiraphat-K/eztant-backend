@@ -1,36 +1,49 @@
 const asyncHandler = require('express-async-handler')
+const { path } = require('express/lib/application')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
 const notificationModel = require('../models/notificationModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
+const { populate } = require('../models/userModel')
 const userModel = require('../models/userModel')
 // 'owner_id schedules comments likes'
+const populate_config = [
+    {
+        path: 'owner_id',
+        select: '_id firstname lastname role imgURL'
+    },
+    [{
+        path: 'schedules',
+        select: ' -__v',
+        populate: [
+            [{
+                path: 'requested',
+                select: '_id firstname lastname student_id student_year role imgURL'
+            }],
+            [{
+                path: 'accepted',
+                select: '_id firstname lastname student_id student_year role imgURL'
+            }],
+        ]
+    }],
+    [{
+        path: 'comments',
+        select: '-_id -updatedAt -__v',
+        populate: [
+            {
+                path: 'owner_id',
+                select: '_id firstname lastname role imgURL'
+            },
+        ]
+    }],
+    [{
+        path: 'likes',
+        select: '_id firstname lastname role imgURL'
+    }],
+]
 const getRecruitPost = asyncHandler(async (req, res) => {
-    const recruit_post = await recruitPostModel.find(req.body).populate([
-        {
-            path: 'owner_id',
-            select: '_id firstname lastname role imgURL'
-        },
-        [{
-            path: 'schedules',
-            select: ' -__v'
-        }],
-        [{
-            path: 'comments',
-            select: '-_id -__v',
-            populate: [
-                {
-                    path: 'owner_id',
-                    select: '_id firstname lastname role imgURL'
-                },
-            ]
-        }],
-        [{
-            path: 'likes',
-            select: '_id firstname lastname role imgURL'
-        }],
-    ])
+    const recruit_post = await recruitPostModel.find(req.body).populate(populate_config)
     if (!recruit_post) {
         res.status(401)
         throw Error('Recruit post not found')
@@ -65,10 +78,10 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     recruit_post.community_id = community._id
     recruit_post.save()
     community.save()
+    const post = recruitPostModel.findById(recruit_post_id).populate(populate_config)
 
-
-    if (recruit_post && community) {
-        res.status(201).json(recruit_post)
+    if (recruit_post && community && post) {
+        res.status(201).json(post)
     } else {
         res.status(400)
         throw new Error('Invalid recruit post')
@@ -94,13 +107,15 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
     } else {
         recruit_post.likes.pop(user._id)
     }
-    recruit_post.save()
+    await recruit_post.save()
 
     // const post = await recruitPostModel.find({ _id: req.params['_id']}).populate('likes')
     // const post = await recruitPostModel.findById(req.params['_id']).populate('likes')
+    await recruit_post.save()
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
 
-    if (recruit_post) {
-        res.status(201).json(recruit_post)
+    if (post) {
+        res.status(201).json(post)
     } else {
         res.status(400)
         throw new Error('Invalid recruit post')
@@ -131,9 +146,10 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
         throw new Error('Invalid comment')
     }
     recruit_post.comments.push(comment._id)
-    recruit_post.save()
-    if (recruit_post) {
-        res.status(201).json(recruit_post)
+    await recruit_post.save()
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+    if (post) {
+        res.status(201).json(post)
     } else {
         res.status(400)
         throw new Error('Invalid recruit post')
@@ -194,8 +210,10 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         schedule.requested.pull(user._id)
     }
     schedule.save()
-    if (schedule) {
-        res.status(201).json(schedule)
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+
+    if (schedule && post) {
+        res.status(201).json(post)
     } else {
         res.status(400)
         throw new Error('Invalid schedule')
@@ -253,9 +271,11 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     schedule.save()
-    if (schedule) {
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+
+    if (schedule && post) {
         
-        res.status(201).json(schedule)
+        res.status(201).json(post)
     } else {
         res.status(400)
         throw new Error('Invalid schedule')
