@@ -135,7 +135,7 @@ const getMe = asyncHandler(async (req, res) => {
     }
     if (user.role == 'teacher') {
         user['recruit_posts'] = await recruitPostModel.find({_id: user._id})
-        user['communities'] = await communityModel.find({owner_id: user._id})
+        user['communities'] = await communityModel.find({recruit_post_id: user['recruit_posts']})
     }
 
     res.status(200).json(user)
