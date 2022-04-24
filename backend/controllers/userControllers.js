@@ -4,6 +4,7 @@ const asyncHandler = require('express-async-handler');
 const userModel = require("../models/userModel");
 const recruitPostModel = require("../models/recruitPostModel");
 const communityModel = require("../models/communityModel");
+const scheduleModel = require('../models/scheduleModel')
 
 // @desc    Register new user
 // @route   POST /api/users/register
@@ -126,9 +127,12 @@ const getUsers = asyncHandler(async (req, res) => {
 const getMe = asyncHandler(async (req, res) => {
     const user = await userModel.findById(req.user.id).select('_id email firstname lastname role department student_id student_year imgURL').lean()
     user['likes'] = await recruitPostModel.find({likes: user._id})
+    let recruit_posts = await scheduleModel.find({requested: user._id}).distinct('recruit_post_id')
+    let communities =  await scheduleModel.find({accepted: user._id}).distinct('recruit_post_id')
+    console.log(communities);
     if (user.role == 'student') {
-        user['requested'] = await recruitPostModel.find({requested: user._id})
-        user['communities'] = await communityModel.find({accepted: user._id})
+        user['requested'] = await recruitPostModel.find({_id: recruit_posts})
+        user['communities'] = await communityModel.find({recruit_post_id: communities})
     }
     res.status(200).json(user)
 })
