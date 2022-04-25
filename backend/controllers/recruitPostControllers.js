@@ -58,7 +58,7 @@ const getRecruitPost = asyncHandler(async (req, res) => {
         res.status(401)
         throw Error('Recruit post not found')
     }
-    res.status(200).json(recruit_post)
+    res.status(200).json(recruit_posts)
 })
 
 const setRecruitPost = asyncHandler(async (req, res) => {
