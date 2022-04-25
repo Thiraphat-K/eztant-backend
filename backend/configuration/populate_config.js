@@ -58,5 +58,5 @@ const populate_community_config = [
 ]
 
 module.exports = {
-    populate_community_config, pop
+    populate_community_config, populate_recruit_post_config
 }
