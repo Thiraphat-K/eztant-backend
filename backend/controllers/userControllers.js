@@ -125,6 +125,15 @@ const getUsers = asyncHandler(async (req, res) => {
     //     res.status(400)
     //     throw new Error('Please add least a field')
     // }
+    if (req.body['filter'] == undefined) {
+        req.body['filter'] = {}
+    }
+    if (req.body['sort'] == undefined) {
+        req.body['sort'] = {}
+    }
+    if (req.body['page'] == undefined) {
+        req.body['page'] = 1
+    }
     let page = req.body['page'].toString().match(/^[0-9]*$/)
     if (page == null || page[0] < 1) {
         page = 1
@@ -132,14 +141,14 @@ const getUsers = asyncHandler(async (req, res) => {
         page = parseInt(page[0])
     }
     let users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort'])
-    users_length = users.length
-    users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort']).skip((page-1)*10).limit(10)
+    const users_length = users.length
+    users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort']).skip((page - 1) * 10).limit(10)
     if (!users) {
         res.status(400)
         throw Error('Users not found')
     }
     users.push({
-        total: Math.ceil(users_length/10)
+        total: Math.ceil(users_length / 10)
     })
     res.status(200).json(users)
 })
