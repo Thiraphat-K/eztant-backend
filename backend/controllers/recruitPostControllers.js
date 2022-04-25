@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
-const { path } = require('express/lib/application')
+const { day } = require('../configuration/day_config')
+const { populate_recruit_post_config } = require('../configuration/populate_config')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
 const notificationModel = require('../models/notificationModel')
