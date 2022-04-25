@@ -13,11 +13,17 @@ const getNotification = asyncHandler(async (req, res) => {
         throw new Error('User not found')
     }
     const notifications = await notificationModel.find({ receiver_id: user._id }).select('-_id event_type description api_link is_watched createdAt').sort({createdAt: -1})
-    const update_notifications = await notificationModel.find({ receiver_id: user._id , is_watched: false})
+    let update_notifications = await notificationModel.find({ receiver_id: user._id , is_watched: false})
     update_notifications.forEach(notification => {
         notification.is_watched = true
         notification.save()
     });
+
+    update_notifications = await notificationModel.find({ receiver_id: user._id}).sort({createdAt: -1})
+    for (let i = 20; i < update_notifications.length; i++) {
+        await update_notifications[i].delete()
+    }
+    
     if (notifications) {
         res.status(201).json(notifications)
     } else {
