@@ -4,6 +4,7 @@ const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
 const communityPostModel = require('../models/communityPostModel')
+const notificationModel = require('../models/notificationModel')
 const receiptModel = require('../models/receiptModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
@@ -170,6 +171,14 @@ const setAttendance = asyncHandler(async (req, res) => {
     })
     community.attendances.push(attendance._id)
     community.save()
+    // create notification
+    const notification = await notificationModel.create({
+        receiver_id: recruit_post.owner_id,
+        event_type: 'recruitPostModel like',
+        description: `คุณ ${user.firstname} ${user.lastname} ได้ส่งหลักฐานการปฏิบัติงานใน Comunity ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name}  section ${schedule.section} ของวันที่ ${date.getDay()}/${date.getMonth()+1}/${date.getFullYear()}`,
+        api_link: `http://localhost:8000/api/community/${community._id}`,
+    })
+    notification.save()
     if (attendance) {
         res.status(201).json(attendance)
     } else {
