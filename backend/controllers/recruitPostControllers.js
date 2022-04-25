@@ -68,9 +68,17 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         res.status(401)
         throw new Error('User role is not allowed')
     }
-    if (!(subject_name && subject_id && wage && requirement_grade && requirement_year)) {
+    if (!(subject_name && subject_id && wage && requirement_grade && requirement_year && expired)) {
         res.status(400)
-        throw new Error('Please add all fields')
+        throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
+    }
+    if (isNaN(subject_id)) {
+        res.status(400)
+        throw new Error('Please add subject_id field with number type')
+    }
+    if (parseInt(subject_id) < 0 || parseInt(subject_id) > 99999999) {
+        res.status(400)
+        throw new Error('Please add subject_id field in range 00000000 - 99999999')
     }
     const recruit_post = await recruitPostModel.create({
         owner_id: req.user.id,
