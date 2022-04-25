@@ -35,6 +35,9 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
         }
     });
 
+    if (req.body['page'] == undefined) {
+        req.body['page'] = 1
+    }
     let page = req.body['page'].toString().match(/^[0-9]*$/)
     if (page == null || page[0] < 1) {
         page = 1
