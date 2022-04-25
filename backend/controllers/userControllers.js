@@ -27,11 +27,13 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     // check if user exists with email
     if (await userModel.findOne({ email })) {
+        res.status(400)
         throw new Error('User has already exists email')
     }
-
+    
     // check if user exists with student_id
     if (role == 'student' && role !== 'teacher' && await userModel.findOne({ student_id })) {
+        res.status(400)
         throw new Error('User has already exists student_id')
     }
 
