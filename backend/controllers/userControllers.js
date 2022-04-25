@@ -147,6 +147,7 @@ const getMe = asyncHandler(async (req, res) => {
                 },
             ])
     }
+    user['notifications'] = await notificationModel.find({owner_id: user._id}).select('-_id event_type description api_link is_watched createdAt').sort({createdAt: -1})
     res.status(200).json(user)
 })
 
