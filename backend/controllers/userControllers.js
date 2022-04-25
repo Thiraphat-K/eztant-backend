@@ -62,7 +62,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     if (!(email && password)) {
         res.status(400)
-        throw new Error('Please add all fields')
+        throw new Error('Please add email && password fields')
     }
     // check for user email
     const user = await userModel.findOne({ email })
@@ -75,7 +75,8 @@ const loginUser = asyncHandler(async (req, res) => {
             student_id: user.student_id,
             student_year: user.student_year,
             role: user.role,
-            imgURL: user.imgURL,
+            img_url: user.img_url,
+            notifications: await notificationModel.find({ receiver_id: user._id }),
             token: generateToken(user.id)
         })
     } else {
