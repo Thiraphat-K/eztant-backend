@@ -171,9 +171,9 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         recruit_post_id: recruit_post._id
     })
     recruit_post.community_id = community._id
-    recruit_post.save()
-    community.save()
-    const post = recruitPostModel.findById(recruit_post_id).populate(populate_config)
+    await recruit_post.save()
+    await community.save()
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (recruit_post && community && post) {
         res.status(201).json(post)
@@ -207,7 +207,7 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
     // const post = await recruitPostModel.find({ _id: req.params['_id']}).populate('likes')
     // const post = await recruitPostModel.findById(req.params['_id']).populate('likes')
     await recruit_post.save()
-    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (post) {
         res.status(201).json(post)
@@ -242,7 +242,7 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
     }
     recruit_post.comments.push(comment._id)
     await recruit_post.save()
-    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
     if (post) {
         res.status(201).json(post)
     } else {
@@ -305,7 +305,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         schedule.requested.pull(user._id)
     }
     schedule.save()
-    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (schedule && post) {
         res.status(201).json(post)
@@ -366,7 +366,7 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     schedule.save()
-    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_config)
+    const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (schedule && post) {
         
