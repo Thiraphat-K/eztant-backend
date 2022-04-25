@@ -30,7 +30,7 @@ const scheduleSchema = mongoose.Schema({
     max_ta: {
         type: Number,
         required: [true, 'Please add a max_ta'],
-        min: [0, 'Please add a max_ta in range 1-10'],
+        min: [1, 'Please add a max_ta in range 1-10'],
         max: [10, 'Please add a max_ta in range 1-10'],
     },
     requested: [{
