@@ -5,9 +5,13 @@ const { errorHandler } = require('./middleware/errorMiddleware')
 const dotenv = require('dotenv').config()
 const port = process.env.PORT || 5000
 
+const cors = require('cors')
+
 connectDatabase()
 
 const app = express()
+
+app.use(cors())
 
 app.all('/', function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
