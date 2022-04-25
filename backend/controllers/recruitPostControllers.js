@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler')
+const { type } = require('express/lib/response')
 const { day } = require('../configuration/day_config')
 const { populate_recruit_post_config } = require('../configuration/populate_config')
 const commentModel = require('../models/commentModel')
@@ -7,8 +8,22 @@ const notificationModel = require('../models/notificationModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
-// 'owner_id schedules comments likes'
 const getRecruitPost = asyncHandler(async (req, res) => {
+    const recruit_post = await recruitPostModel.findById(req.params['_id']).populate(populate_recruit_post_config)
+    // check expired date
+    if (recruit_post.expired && new Date().getTime() > recruit_post.expired.getTime()) {
+        recruit_post.isOpened = false
+        recruit_post.save()
+    }
+    if (!recruit_post) {
+        res.status(401)
+        throw Error('Recruit post not found')
+    }
+    res.status(200).json(recruit_post)
+})
+
+// 'owner_id schedules comments likes'
+const getsRecruitPost = asyncHandler(async (req, res) => {
     const recruit_posts = await recruitPostModel.find(req.body).populate(populate_recruit_post_config)
 
     // check expired date
@@ -37,9 +52,9 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
     }
-    if (isNaN(subject_id)) {
+    if (isNaN(subject_id) || typeof subject_id !== 'string' || subject_id.length !== 8) {
         res.status(400)
-        throw new Error('Please add subject_id field with number type')
+        throw new Error('Please add subject_id field with 8 digit number in string type')
     }
     if (parseInt(subject_id) < 0 || parseInt(subject_id) > 99999999) {
         res.status(400)
@@ -112,7 +127,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
                     res.status(400)
                     throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
                 }
-                if (schedule_times[i].time_from < schedule_times[j].time_from){
+                if (schedule_times[i].time_from < schedule_times[j].time_from) {
                     before = schedule_times[i]
                     after = schedule_times[j]
                 } else {
@@ -164,6 +179,14 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
     const likes = await recruitPostModel.find({ _id: req.params['_id'], likes: user._id })
     if (!likes.length) {
         recruit_post.likes.push(user._id)
+        // create notification
+        const notification = await notificationModel.create({
+            receiver_id: recruit_post.owner_id,
+            event_type: 'recruitPostModel like',
+            description: `คุณ ${user.firstname} ${user.lastname} ได้กดถูกใจโพสต์รับ TA ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name}`,
+            api_link: `http://localhost:8000/api/recruit_post/${recruit_post._id}`,
+        })
+        notification.save()
     } else {
         recruit_post.likes.pop(user._id)
     }
@@ -329,7 +352,7 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         // create notification
         const notification = await notificationModel.create({
             receiver_id: req.params['user_id'],
-            event_type: 'recruitPostModel',
+            event_type: 'recruitPostModel accepted',
             description: `คุณได้รับการตอบรับการเป็น TA จากอาจารย์ที่เป็นเจ้าของโพสต์รับ TA วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} ที่ section ${schedule.section} สามารถเข้าไปเยี่ยมชม Community ของโพสต์นี้ได้ ณ ตอนนี้`,
             api_link: `http://localhost:8000/api/community/${recruit_post.community_id}`,
         })
@@ -350,5 +373,5 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
-    getRecruitPost, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost
+    getRecruitPost, getsRecruitPost, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost
 }
