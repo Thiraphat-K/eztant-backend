@@ -115,6 +115,10 @@ const setRecruitPost = asyncHandler(async (req, res) => {
             res.status(400)
             throw new Error('Please add a day field in correct value \" sunday monday tuesday wednesday thursday friday saturday \"')
         }
+        if (schedule.max_ta<1||schedule.max_ta > 10) {
+            res.status(400)
+            throw new Error('Please add a max_ta field in range 1-10')
+        }
 
         let time_from = schedule.time_from.split(':')
         if (time_from[0].length !== 2 || time_from[1].length !== 2 || isNaN(time_from[0]) || isNaN(time_from[1])) {
@@ -184,11 +188,12 @@ const setRecruitPost = asyncHandler(async (req, res) => {
             }
         }
     }
+    
+    const schedules_model = await scheduleModel.insertMany(schedules)
     const recruit_post = await recruitPostModel.create({
         owner_id: req.user.id,
         subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired
     })
-    const schedules_model = await scheduleModel.insertMany(schedules)
     schedules_model.forEach(schedule => {
         schedule.recruit_post_id = recruit_post._id
         recruit_post.schedules.push(schedule)
