@@ -34,7 +34,12 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
             recruit_post.save()
         }
     });
-
+    if (req.body['filter'] == undefined) {
+        req.body['filter'] = {}
+    }
+    if (req.body['sort'] == undefined) {
+        req.body['sort'] = {}
+    }
     if (req.body['page'] == undefined) {
         req.body['page'] = 1
     }
