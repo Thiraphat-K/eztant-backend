@@ -265,12 +265,18 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     const schedule = await scheduleModel.findById(req.params['_id'])
     const recruit_post = await recruitPostModel.findById(schedule.recruit_post_id)
     // check expired date
-
+    if (new Date().getTime() > recruit_post.expired.getTime()) {
+        recruit_post.isOpened = false
+        recruit_post.save()
+        res.status(401)
+        throw new Error('User cannot requested or unrequested because recruit post is expired')
+    }
 
     // check requirement year
-    if (user.student_year < recruit_post.requirement_year) {
+    const set = new Set(recruit_post.requirement_year)
+    if (recruit_post.requirement_year.length < set.add(user.student_year).size) {
         res.status(401)
-        throw new Error('User cannot request because student_year is lower than requirement_year')
+        throw new Error('User cannot request because student_year is not allowes requirement_year')
     }
     // check requirement grade
 
