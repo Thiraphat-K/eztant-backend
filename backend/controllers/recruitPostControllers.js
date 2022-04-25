@@ -84,6 +84,83 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         owner_id: req.user.id,
         subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired
     })
+    let sections = new Set()
+    let schedule_times = []
+    schedules.forEach(schedule => {
+        sections.add(schedule.section)
+        if (!day[schedule.day]) {
+            res.status(400)
+            throw new Error('Please add a day field in correct value \" sunday monday tuesday wednesday thursday friday saturday \"')
+        }
+
+        let time_from = schedule.time_from.split(':')
+        if (time_from[0].length !== 2 || time_from[1].length !== 2 || isNaN(time_from[0]) || isNaN(time_from[1])) {
+            res.status(400)
+            throw new Error('Please add time_from field in schedule with HH:MM')
+        }
+        time_from[0] = parseInt(time_from[0])
+        time_from[1] = parseInt(time_from[1])
+        if (time_from[1] < 0 || 59 < time_from[1]) {
+            res.status(400)
+            throw new Error('Please add time_from field in schedule with 00<=MM<=59')
+        }
+        if (time_from[0] < 0 || 23 < time_from[0]) {
+            res.status(400)
+            throw new Error('Please add time_from field in schedule with 00<=HH<=23')
+        }
+
+        let time_to = schedule.time_to.split(':')
+        if (time_to[0].length !== 2 || time_to[1].length !== 2 || isNaN(time_to[0]) || isNaN(time_to[1])) {
+            res.status(400)
+            throw new Error('Please add time_to field in schedule with HH:MM')
+        }
+        time_to[0] = parseInt(time_to[0])
+        time_to[1] = parseInt(time_to[1])
+
+        if (time_to[1] < 0 || 59 < time_to[1]) {
+            res.status(400)
+            throw new Error('Please add time_to field in schedule with 00<=MM<=59')
+        }
+        if (time_to[0] < 0 || 23 < time_to[0]) {
+            res.status(400)
+            throw new Error('Please add time_to field in schedule with 00<=HH<=23')
+        }
+        if (time_from[0] * 60 + time_from[1] >= time_to[0] * 60 + time_to[1]) {
+            res.status(400)
+            throw new Error('Please add time_from before time_to')
+        }
+        schedule_times.push({
+            day: day[schedule.day],
+            time_from: time_from[0] * 60 + time_from[1],
+            time_to: time_to[0] * 60 + time_to[1]
+        })
+    });
+    if (sections.size < schedules.length) {
+        res.status(400)
+        throw new Error('Please add section field in schedules without duplicate')
+    }
+    for (let i = 0; i < schedule_times.length; i++) {
+        for (let j = i + 1; j < schedule_times.length; j++) {
+            if (schedule_times[i].day == schedule_times[j].day) {
+                let before, after
+                if (schedule_times[i].time_from == schedule_times[j].time_from || schedule_times[i].time_to == schedule_times[j].time_to) {
+                    res.status(400)
+                    throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                }
+                if (schedule_times[i].time_from < schedule_times[j].time_from){
+                    before = schedule_times[i]
+                    after = schedule_times[j]
+                } else {
+                    before = schedule_times[j]
+                    after = schedule_times[i]
+                }
+                if (before.time_to > after.time_from) {
+                    res.status(400)
+                    throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                }
+            }
+        }
+    }
     const schedules_model = await scheduleModel.insertMany(schedules)
     schedules_model.forEach(schedule => {
         schedule.recruit_post_id = recruit_post._id
