@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler')
-const { populate } = require('../models/attendanceModel')
+const { populate_community_config } = require('../configuration/populate_config')
 const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
@@ -8,33 +8,8 @@ const receiptModel = require('../models/receiptModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
 
-const papulate_community_config = [
-    {
-        path: 'community_posts',
-        select: '_id description likes comments createdAt',
-        populate: [
-            {
-                path: 'owner_id',
-                select: '_id email firstname lastname role'
-            },
-            [{
-                path: 'likes',
-                select: '_id email firstname lastname role',
-            }],
-            [{
-                path: 'comments',
-                select: '-_id -updatedAt -__v',
-                populate: {
-                    path: 'owner_id',
-                    select: '_id email firstname lastname role'
-                }
-            }]
-        ]
-    }
-]
-
 const getCommunity = asyncHandler(async (req, res) => {
-    const community = await communityModel.findById(req.community._id).populate(papulate_community_config)
+    const community = await communityModel.findById(req.community._id).populate(populate_community_config)
     res.status(201).json(community)
 })
 
@@ -53,7 +28,7 @@ const setCommunityPost = asyncHandler(async (req, res) => {
     }
     community.community_posts.push(community_post._id)
     await community.save()
-    const update_community = await communityModel.findById(community._id).populate(papulate_community_config)
+    const update_community = await communityModel.findById(community._id).populate(populate_community_config)
     if (update_community) {
         res.status(201).json(update_community)
     } else {
@@ -123,7 +98,7 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
         },
         [{
             path: 'likes',
-            select: '_id firstname lastname role imgURL'
+            select: '_id firstname lastname role img_url'
         }],
         [{
             path: 'comments',
@@ -131,7 +106,7 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
             populate: [
                 {
                     path: 'owner_id',
-                    select: '_id firstname lastname role imgURL'
+                    select: '_id firstname lastname role img_url'
                 },
             ]
         }],
@@ -298,7 +273,7 @@ const createReceipt = asyncHandler(async (req, res) => {
                         populate: [
                             {
                                 path: 'owner_id',
-                                select: '-_id firstname lastname student_id student_year role imgURL'
+                                select: '-_id firstname lastname student_id student_year role img_url'
                             }
                         ]
                     },
