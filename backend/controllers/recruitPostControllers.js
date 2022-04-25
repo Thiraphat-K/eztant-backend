@@ -6,43 +6,8 @@ const communityModel = require('../models/communityModel')
 const notificationModel = require('../models/notificationModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
-const { populate } = require('../models/userModel')
 const userModel = require('../models/userModel')
 // 'owner_id schedules comments likes'
-const populate_config = [
-    {
-        path: 'owner_id',
-        select: '_id firstname lastname role imgURL'
-    },
-    [{
-        path: 'schedules',
-        select: ' -__v',
-        populate: [
-            [{
-                path: 'requested',
-                select: '_id firstname lastname student_id student_year role imgURL'
-            }],
-            [{
-                path: 'accepted',
-                select: '_id firstname lastname student_id student_year role imgURL'
-            }],
-        ]
-    }],
-    [{
-        path: 'comments',
-        select: '-_id -updatedAt -__v',
-        populate: [
-            {
-                path: 'owner_id',
-                select: '_id firstname lastname role imgURL'
-            },
-        ]
-    }],
-    [{
-        path: 'likes',
-        select: '_id firstname lastname role imgURL'
-    }],
-]
 const getRecruitPost = asyncHandler(async (req, res) => {
     const recruit_posts = await recruitPostModel.find(req.body).populate(populate_recruit_post_config)
 
@@ -278,7 +243,9 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         res.status(401)
         throw new Error('User cannot request because student_year is not allowes requirement_year')
     }
+
     // check requirement grade
+
 
     if (!schedule) {
         res.status(401)
@@ -286,7 +253,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     // check requese in other schedules
-    const other_requests = await scheduleModel.findOne({recruit_post_id: recruit_post._id, requested: user._id })
+    const other_requests = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
     if (other_requests && schedule.section !== other_requests.section) {
         res.status(401)
         throw new Error('User cannot duplicate request in other schedules')
@@ -361,10 +328,10 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         schedule.accepted.push(req.params['user_id'])
         // create notification
         const notification = await notificationModel.create({
-            receiver_id: req.params['user_id'], 
-            event_type: 'recruitPostModel', 
+            receiver_id: req.params['user_id'],
+            event_type: 'recruitPostModel',
             description: `คุณได้รับการตอบรับการเป็น TA จากอาจารย์ที่เป็นเจ้าของโพสต์รับ TA วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} ที่ section ${schedule.section} สามารถเข้าไปเยี่ยมชม Community ของโพสต์นี้ได้ ณ ตอนนี้`,
-            api_link: `http://localhost:8000/api/community/${recruit_post.community_id}`, 
+            api_link: `http://localhost:8000/api/community/${recruit_post.community_id}`,
         })
         notification.save()
     } else {
@@ -375,7 +342,6 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (schedule && post) {
-        
         res.status(201).json(post)
     } else {
         res.status(400)
