@@ -17,10 +17,9 @@ const recruitPostSchema = mongoose.Schema({
         maxLength: 100,
     },
     subject_id: {
-        type: Number,
+        type: String,
         require: [true, 'Please add a subject_id'],
-        min: [0, 'Please add a subject_id in range 00000000-99999999'],
-        max: [99999999, 'Please add a subject_id in range 00000000-99999999'],
+        maxLength: 8
     },
     wage: {
         type: Number,
@@ -33,12 +32,12 @@ const recruitPostSchema = mongoose.Schema({
         require: [true, 'Please add a requirement_grade'],
         maxLength: 2
     },
-    requirement_year: {
+    requirement_year: [{
         type: Number,
         require: [true, 'Please add a requirement_year'],
         min: [1, 'Please add a requirement_year in range 1-8'],
         max: [8, 'Please add a requirement_year in range 1-8']
-    },
+    }],
     description: {
         type: String,
         require: false,
@@ -71,9 +70,8 @@ const recruitPostSchema = mongoose.Schema({
         default: true,
     },
     expired: {
-        type: String,
+        type: Date,
         require: [true, 'Please add a expired'],
-        maxLength: 25
     }
 }, {
     timestamps: true,
