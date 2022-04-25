@@ -34,17 +34,30 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
             recruit_post.save()
         }
     });
-    
+
+    let page = req.body['page'].toString().match(/^[0-9]*$/)
+    if (page == null || page[0] < 1) {
+        page = 1
+    } else {
+        page = parseInt(page[0])
+    }
+    let recruit_posts_length
     if (req.body['sort']['likes'] !== undefined) {
         aggregate_config.push({ '$sort': { 'likes_length': req.body['sort']['likes'] } })
         recruit_posts = await recruitPostModel.aggregate(aggregate_config)
+        recruit_posts_length = recruit_posts.length
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page-1)*10).limit(10)
 
     } else if (req.body['sort']['owner_id'] !== undefined) {
         aggregate_config.push({ '$sort': req.body['sort']['owner_id'] })
         recruit_posts = await recruitPostModel.aggregate(aggregate_config)
+        recruit_posts_length = recruit_posts.length
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page-1)*10).limit(10)
 
     } else {
-        recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config).sort(req.body['sort'])
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config)
+        recruit_posts_length = recruit_posts.length
+        recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config).sort(req.body['sort']).skip((page-1)*10).limit(10)
     }
     // recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config)//.sort(req.body['sort'])
 
@@ -58,6 +71,11 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
         res.status(401)
         throw Error('Recruit post not found')
     }
+    recruit_posts.push(
+        {
+            total: Math.ceil(recruit_posts_length/10)
+        }
+    )
     res.status(200).json(recruit_posts)
 })
 
