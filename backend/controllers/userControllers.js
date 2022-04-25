@@ -118,7 +118,7 @@ const getUsers = asyncHandler(async (req, res) => {
     //     res.status(400)
     //     throw new Error('Please add least a field')
     // }
-    const users = await userModel.find(req.body).select('_id email firstname lastname role department student_id student_year imgURL')
+    const users = await userModel.find(req.body).select('_id email firstname lastname role department student_id student_year img_url')
     if (!users) {
         res.status(401)
         throw Error('Users not found')
