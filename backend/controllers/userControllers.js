@@ -30,6 +30,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('User has already exists email')
     }
 
+    // check if user exists with email
+    if (role == 'student' && role !== 'teacher' && await userModel.findOne({ student_id })) {
+        throw new Error('User has already exists student_id')
+    }
+
     // hash password
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(password, salt)
