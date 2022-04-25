@@ -11,11 +11,11 @@ const { populate } = require("../models/userModel");
 // @route   POST /api/users/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { email, password, firstname, lastname, student_id, role, student_year, department, imgURL } = req.body
+    const { email, password, firstname, lastname, student_id, role, student_year, department, img_url } = req.body
 
     if (!(email && password && firstname && lastname && role && department)) {
         res.status(400)
-        throw new Error('Please add all fields')
+        throw new Error('Please add email && password && firstname && lastname && role && department fields')
     }
     if (role == 'student' && !(student_id && student_year)) {
         res.status(400)
@@ -36,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // create user
     const user = await userModel.create({
-        email, password: hashedPassword, firstname, lastname, student_id, role, student_year, department, imgURL
+        email, password: hashedPassword, firstname, lastname, student_id, role, student_year, department, img_url
     })
     if (user) {
         res.status(201).json({
@@ -48,7 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
             role: user.role,
             student_year: user.student_year,
             department: user.department,
-            imgURL: user.imgURL,
+            img_url: user.img_url,
             token: generateToken(user._id),
             createdAt: new Date(user.createdAt).toLocaleString(),
         })
