@@ -1,7 +1,7 @@
 const populate_recruit_post_config = [
     {
         path: 'owner_id',
-        select: '_id firstname lastname role imgURL'
+        select: '_id firstname lastname role img_url'
     },
     [{
         path: 'schedules',
@@ -9,11 +9,11 @@ const populate_recruit_post_config = [
         populate: [
             [{
                 path: 'requested',
-                select: '_id firstname lastname student_id student_year role imgURL'
+                select: '_id firstname lastname student_id student_year role img_url'
             }],
             [{
                 path: 'accepted',
-                select: '_id firstname lastname student_id student_year role imgURL'
+                select: '_id firstname lastname student_id student_year role img_url'
             }],
         ]
     }],
@@ -23,13 +23,13 @@ const populate_recruit_post_config = [
         populate: [
             {
                 path: 'owner_id',
-                select: '_id firstname lastname role imgURL'
+                select: '_id firstname lastname role img_url'
             },
         ]
     }],
     [{
         path: 'likes',
-        select: '_id firstname lastname role imgURL'
+        select: '_id firstname lastname role img_url'
     }],
 ]
 const populate_community_config = [
