@@ -5,7 +5,7 @@ const userModel = require("../models/userModel");
 const recruitPostModel = require("../models/recruitPostModel");
 const communityModel = require("../models/communityModel");
 const scheduleModel = require('../models/scheduleModel');
-const { populate } = require("../models/userModel");
+const notificationModel = require("../models/notificationModel");
 
 // @desc    Register new user
 // @route   POST /api/users/register
@@ -106,7 +106,7 @@ const updateUser = asyncHandler(async (req, res) => {
         lastname: updatedUser.lastname,
         student_id: updatedUser.student_id,
         role: updatedUser.role,
-        imgURL: updatedUser.imgURL,
+        img_url: updatedUser.img_url,
         student_year: updatedUser.student_year,
     })
 })
@@ -147,7 +147,6 @@ const getMe = asyncHandler(async (req, res) => {
                 },
             ])
     }
-
     res.status(200).json(user)
 })
 
