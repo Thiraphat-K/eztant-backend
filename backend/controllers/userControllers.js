@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('User has already exists email')
     }
-    
+
     // check if user exists with student_id
     if (role == 'student' && role !== 'teacher' && await userModel.findOne({ student_id })) {
         res.status(400)
@@ -125,11 +125,22 @@ const getUsers = asyncHandler(async (req, res) => {
     //     res.status(400)
     //     throw new Error('Please add least a field')
     // }
-    const users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort'])
+    let page = req.body['page'].toString().match(/^[0-9]*$/)
+    if (page == null || page[0] < 1) {
+        page = 1
+    } else {
+        page = parseInt(page[0])
+    }
+    let users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort'])
+    users_length = users.length
+    users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort']).skip((page-1)*10).limit(10)
     if (!users) {
-        res.status(401)
+        res.status(400)
         throw Error('Users not found')
     }
+    users.push({
+        total: Math.ceil(users_length/10)
+    })
     res.status(200).json(users)
 })
 
@@ -154,7 +165,7 @@ const getMe = asyncHandler(async (req, res) => {
                 },
             ])
     }
-    user['notifications'] = await notificationModel.find({owner_id: user._id}).select('-_id event_type description api_link is_watched createdAt').sort({createdAt: -1})
+    user['notifications'] = await notificationModel.find({ owner_id: user._id }).select('-_id event_type description api_link is_watched createdAt').sort({ createdAt: -1 })
     res.status(200).json(user)
 })
 
