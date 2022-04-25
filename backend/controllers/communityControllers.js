@@ -25,7 +25,8 @@ const setCommunityPost = asyncHandler(async (req, res) => {
     })
     if (!community_post) {
         res.status(401)
-        throw new Error('Invalid community post')
+        // throw new Error('Invalid community post')
+        throw new Error('การโพส์ไม่ถูกต้อง')
     }
     community.community_posts.push(community_post._id)
     await community.save()
@@ -34,7 +35,8 @@ const setCommunityPost = asyncHandler(async (req, res) => {
         res.status(201).json(update_community)
     } else {
         res.status(401)
-        throw new Error('Invalid community')
+        // throw new Error('Invalid community')
+        throw new Error('คอมมูนิตี้ไม่ถูกต้อง')
     }
 })
 
@@ -70,7 +72,8 @@ const likeCommunityPost = asyncHandler(async (req, res) => {
         res.status(201).json(update_post)
     } else {
         res.status(401)
-        throw new Error('Invalid community_post')
+        // throw new Error('Invalid community_post')
+        throw new Error('การโพสต์ไม่ถูกต้อง')
     }
 })
 
@@ -82,13 +85,15 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
     })
     if (!comment) {
         res.status(401)
-        throw new Error('comment not found')
+        // throw new Error('comment not found')
+        throw new Error('ไม่พบคอมเมนต์')
     }
     let community_post = await communityPostModel.findById(req.params['post_id'])
 
     if (!community_post) {
         res.status(401)
-        throw new Error('community_post not found')
+        // throw new Error('community_post not found')
+        throw new Error('ไม่พบคอมมูนิตี้')
     }
     community_post.comments.push(comment._id)
     await community_post.save()
@@ -116,7 +121,8 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
         res.status(201).json(update_post)
     } else {
         res.status(400)
-        throw new Error('Invalid community_post')
+        // throw new Error('Invalid community_post')
+        throw new Error('คอมมูนิตี้ไม่ถูกต้อง')
     }
 })
 
@@ -134,7 +140,8 @@ const getAttendance = asyncHandler(async (req, res) => {
     }
     if (!attendances) {
         res.status(401)
-        throw new Error('Invalid Attendance')
+        // throw new Error('Invalid Attendance')
+        throw new Error('การเข้าสอนไม่ถูกต้อง')
     }
 })
 
@@ -142,18 +149,21 @@ const setAttendance = asyncHandler(async (req, res) => {
     const user = req.user
     if (user.role == 'teacher' && user.role !== 'student') {
         res.status(401)
-        throw new Error('User cannot use setAttenddance because User has not student role')
+        // throw new Error('User cannot use setAttenddance because User has not student role')
+        throw new Error('สำหรับนักศึกษาเท่านั้น')
     }
     const { attend_date, evidence_url } = req.body
     if (!(attend_date && evidence_url)) {
         res.status(401)
-        throw new Error('Pleas add all fields')
+        // throw new Error('Pleas add all fields')
+        throw new Error('โปรดใส่ข้อมูลให้ครบ')
     }
 
     const date = new Date(attend_date)
     if (!date) {
         res.status(401)
-        throw new Error('Pleas add correct attend_dates ("YYYY-MM-DD")')
+        // throw new Error('Pleas add correct attend_dates ("YYYY-MM-DD")')
+        throw new Error('กรุณาใส่วันเวลาการเข้าสอนให้ถูกต้อง (YYYY-MM-DD)')
     }
 
     const community = req.community
@@ -183,7 +193,8 @@ const setAttendance = asyncHandler(async (req, res) => {
         res.status(201).json(attendance)
     } else {
         res.status(401)
-        throw new Error('Invalid attendance')
+        // throw new Error('Invalid attendance')
+        throw new Error('การเข้าสอนไม่ถูกต้อง')
     }
 })
 
@@ -191,12 +202,14 @@ const check_by_teacher = asyncHandler(async (req, res) => {
     const user = req.user
     if (user.role !== 'teacher' && user.role == 'student') {
         res.status(401)
-        throw new Error('User cannot check because User has not teacher role')
+        // throw new Error('User cannot check because User has not teacher role')
+        throw new Error('สำหรับอาจารย์ผู้สอนเท่านั้น')
     }
     const attendance = await attendanceModel.findById(req.params['attendance_id'])
     if (!attendance) {
         res.status(401)
-        throw new Error('Attendance not found')
+        // throw new Error('Attendance not found')
+        throw new Error('ไม่พบการเข้าสอน')
     }
     if (!attendance.check_by_teacher) {
         attendance.check_by_teacher = true
@@ -208,7 +221,8 @@ const check_by_teacher = asyncHandler(async (req, res) => {
         res.status(201).json(attendance)
     } else {
         res.status(401)
-        throw new Error('Invalid attendance')
+        // throw new Error('Invalid attendance')
+        throw new Error('การเข้าสอนไม่ถูกต้อง')
     }
 })
 
@@ -216,7 +230,8 @@ const createReceipt = asyncHandler(async (req, res) => {
     const user = req.user
     if (user.role !== 'teacher' && user.role == 'student') {
         res.status(401)
-        throw new Error('User cannot creat receipt because user has not teacher role')
+        // throw new Error('User cannot creat receipt because user has not teacher role')
+        throw new Error('สำหรับอาจารย์ผู้สอนเท่านั้น')
     }
     const recruit_post = req.recruit_post
     const community = req.community
