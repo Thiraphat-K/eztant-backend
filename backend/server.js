@@ -20,6 +20,7 @@ app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/recruit_post', require('./routes/recruitPostRoutes'))
 app.use('/api/notification', require('./routes/notificationRoutes'))
 app.use('/api/community', require('./routes/communityRoutes'))
+app.use('/api/delete_database', require('./routes/deleteDatabaseRoutes'))
 
 app.use(errorHandler)
 
