@@ -100,7 +100,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     if (!(subject_name && subject_id && wage && requirement_grade && requirement_year && expired)) {
         res.status(400)
         // throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
-        throw new Error('กรุณาใส่... ชื่อวิชา รหัสวิชา ค่าตอบแทน เกรดที่ต้องการ ชั้นปีที่ต้องการ และระยะเวลาที่เปิดรับ')
+        throw new Error('กรุณาใส่ : ชื่อวิชา รหัสวิชา ค่าตอบแทน เกรดที่ต้องการ ชั้นปีที่ต้องการ และระยะเวลาที่เปิดรับ')
     }
     if (isNaN(subject_id) || typeof subject_id !== 'string' || subject_id.length !== 8) {
         res.status(400)
@@ -433,7 +433,8 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     const requested = await scheduleModel.find({ _id: req.params['schedule_id'], requested: req.params['user_id'] })
     if (!requested.length) {
         res.status(401)
-        throw new Error('User cancelled to request or User not found in the schedule')
+        // throw new Error('User cancelled to request or User not found in the schedule')
+        throw new Error('ไม่พบผู้สมัคร')
     }
     // check accepted toggle
     const accepted = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
@@ -441,7 +442,8 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
             res.status(401)
-            throw new Error('Owner cannot accepted bacause accepted users exceed')
+            // throw new Error('Owner cannot accepted bacause accepted users exceed')
+            throw new Error('ไม่สามารถตอบรับการสมัครได้ เนื่องจากครบจำนวนการรับสมัครแล้ว')
         }
         schedule.accepted.push(req.params['user_id'])
         // create notification
@@ -463,7 +465,8 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid schedule')
+        // throw new Error('Invalid schedule')
+        throw new Error('ตารางสอนไม่ถูกต้อง')
     }
 })
 
