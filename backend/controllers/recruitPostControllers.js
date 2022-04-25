@@ -192,9 +192,6 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
     }
     await recruit_post.save()
 
-    // const post = await recruitPostModel.find({ _id: req.params['_id']}).populate('likes')
-    // const post = await recruitPostModel.findById(req.params['_id']).populate('likes')
-    await recruit_post.save()
     const post = await recruitPostModel.findById(recruit_post._id).populate(populate_recruit_post_config)
 
     if (post) {
@@ -290,6 +287,14 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
             res.status(401)
             throw new Error('failed requested because accepted users exceed')
         }
+        // create notification
+        const notification = await notificationModel.create({
+            receiver_id: recruit_post.owner_id,
+            event_type: 'recruitPostModel requested',
+            description: `คุณ ${user.firstname} ${user.lastname} ได้กด request โพสต์รับ TA ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} ที่ section ${schedule.section}`,
+            api_link: `http://localhost:8000/api/recruit_post/${recruit_post._id}`,
+        })
+        notification.save()
         schedule.requested.push(user._id)
     } else {
         // check cannot unrequest if owner_post accepted you
