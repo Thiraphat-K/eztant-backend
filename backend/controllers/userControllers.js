@@ -158,13 +158,6 @@ const getMe = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
-const deleteAllUsers = asyncHandler(async (req,res)=>{
-    await userModel.deleteMany({})
-    res.status(200).json({
-        message: 'Successfully deleted users'
-    })
-})
-
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '1d'
@@ -172,5 +165,5 @@ const generateToken = (id) => {
 }
 
 module.exports = {
-    registerUser, updateUser, loginUser, getMe, getUsers, deleteAllUsers
+    registerUser, updateUser, loginUser, getMe, getUsers
 }
