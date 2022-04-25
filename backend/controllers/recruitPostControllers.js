@@ -44,8 +44,17 @@ const populate_config = [
     }],
 ]
 const getRecruitPost = asyncHandler(async (req, res) => {
-    const recruit_post = await recruitPostModel.find(req.body).populate(populate_config)
-    if (!recruit_post) {
+    const recruit_posts = await recruitPostModel.find(req.body).populate(populate_recruit_post_config)
+
+    // check expired date
+    recruit_posts.forEach(recruit_post => {
+        if (recruit_post.expired && new Date().getTime() > recruit_post.expired.getTime()) {
+            recruit_post.isOpened = false
+            recruit_post.save()
+        }
+    });
+
+    if (!recruit_posts) {
         res.status(401)
         throw Error('Recruit post not found')
     }
