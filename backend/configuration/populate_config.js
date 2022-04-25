@@ -1,7 +1,7 @@
 const populate_recruit_post_config = [
     {
         path: 'owner_id',
-        select: '_id firstname lastname role img_url'
+        select: '_id email firstname lastname role department img_url'
     },
     [{
         path: 'schedules',
@@ -9,11 +9,11 @@ const populate_recruit_post_config = [
         populate: [
             [{
                 path: 'requested',
-                select: '_id firstname lastname student_id student_year role img_url'
+                select: '_id email firstname lastname student_id student_year role department img_url'
             }],
             [{
                 path: 'accepted',
-                select: '_id firstname lastname student_id student_year role img_url'
+                select: '_id email firstname lastname student_id student_year role department img_url'
             }],
         ]
     }],
@@ -23,13 +23,13 @@ const populate_recruit_post_config = [
         populate: [
             {
                 path: 'owner_id',
-                select: '_id firstname lastname role img_url'
+                select: '_id email firstname lastname role department img_url'
             },
         ]
     }],
     [{
         path: 'likes',
-        select: '_id firstname lastname role img_url'
+        select: '_id email firstname lastname role department img_url'
     }],
 ]
 const populate_community_config = [
@@ -39,18 +39,18 @@ const populate_community_config = [
         populate: [
             {
                 path: 'owner_id',
-                select: '_id email firstname lastname role'
+                select: '_id email firstname lastname role department img_url'
             },
             {
                 path: 'likes',
-                select: '_id email firstname lastname role',
+                select: '_id email firstname lastname role department img_url',
             },
             {
                 path: 'comments',
                 select: '-_id -updatedAt -__v',
                 populate: {
                     path: 'owner_id',
-                    select: '_id email firstname lastname role'
+                    select: '_id email firstname lastname role department img_url'
                 }
             }
         ]
