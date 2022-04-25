@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const { type } = require('express/lib/response')
+const { aggregate_config } = require('../configuration/aggregate_config')
 const { day } = require('../configuration/day_config')
 const { populate_recruit_post_config } = require('../configuration/populate_config')
 const commentModel = require('../models/commentModel')
@@ -23,8 +24,8 @@ const getRecruitPost = asyncHandler(async (req, res) => {
 })
 
 // 'owner_id schedules comments likes'
-const getsRecruitPost = asyncHandler(async (req, res) => {
-    const recruit_posts = await recruitPostModel.find(req.body).populate(populate_recruit_post_config)
+const getRecruitPosts = asyncHandler(async (req, res) => {
+    let recruit_posts = await recruitPostModel.find({}).populate(populate_recruit_post_config)
 
     // check expired date
     recruit_posts.forEach(recruit_post => {
@@ -33,6 +34,25 @@ const getsRecruitPost = asyncHandler(async (req, res) => {
             recruit_post.save()
         }
     });
+    
+    if (req.body['sort']['likes'] !== undefined) {
+        aggregate_config.push({ '$sort': { 'likes_length': req.body['sort']['likes'] } })
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config)
+
+    } else if (req.body['sort']['owner_id'] !== undefined) {
+        aggregate_config.push({ '$sort': req.body['sort']['owner_id'] })
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config)
+
+    } else {
+        recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config).sort(req.body['sort'])
+    }
+    // recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config)//.sort(req.body['sort'])
+
+
+    // let posts = recruitPostModel.aggregate([{ $group: { 'owner_id': -1 } }])
+    // posts.forEach(post => {
+    //     console.log(post);
+    // });
 
     if (!recruit_posts) {
         res.status(401)
@@ -378,5 +398,5 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
-    getRecruitPost, getsRecruitPost, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost
+    getRecruitPost, getRecruitPosts, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost
 }
