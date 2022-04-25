@@ -106,10 +106,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('Please add subject_id field in range 00000000 - 99999999')
     }
-    const recruit_post = await recruitPostModel.create({
-        owner_id: req.user.id,
-        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired
-    })
+    
     let sections = new Set()
     let schedule_times = []
     schedules.forEach(schedule => {
@@ -187,6 +184,10 @@ const setRecruitPost = asyncHandler(async (req, res) => {
             }
         }
     }
+    const recruit_post = await recruitPostModel.create({
+        owner_id: req.user.id,
+        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired
+    })
     const schedules_model = await scheduleModel.insertMany(schedules)
     schedules_model.forEach(schedule => {
         schedule.recruit_post_id = recruit_post._id
