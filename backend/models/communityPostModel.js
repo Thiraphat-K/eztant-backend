@@ -13,7 +13,8 @@ const communityPostSchema = mongoose.Schema({
     },
     description: {
         type: String,
-        require: [true, 'Plase add a description'],
+        // require: [true, 'Plase add a description'],
+        require: [true, 'โปรดใส่คำอธิบายเพิ่มเติม'],
         maxLength: 500
     },
     file_url: {

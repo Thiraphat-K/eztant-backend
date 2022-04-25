@@ -100,7 +100,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     if (!(subject_name && subject_id && wage && requirement_grade && requirement_year && expired)) {
         res.status(400)
         // throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
-        throw new Error('กรุณาใส่ : ชื่อวิชา รหัสวิชา ค่าตอบแทน เกรดที่ต้องการ ชั้นปีที่ต้องการ และระยะเวลาที่เปิดรับ')
+        throw new Error('กรุณาใส่ : ชื่อวิชา รหัสวิชา ค่าตอบแทน เกรดที่ต้องการ ชั้นปีที่ต้องการ และระยะเวลาที่เปิดรับสมัคร')
     }
     if (isNaN(subject_id) || typeof subject_id !== 'string' || subject_id.length !== 8) {
         res.status(400)

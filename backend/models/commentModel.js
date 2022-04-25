@@ -8,7 +8,8 @@ const commentSchema = mongoose.Schema({
     },
     comment: {
         type: String,
-        require: [true, 'Please add a comment'],
+        // require: [true, 'Please add a comment'],
+        require: [true, 'โปรดใส่คอมเมนต์'],
         maxLength: 200
     }
 },{

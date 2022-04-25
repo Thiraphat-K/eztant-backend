@@ -8,7 +8,8 @@ const communitySchema = mongoose.Schema({
     },
     theme_color: {
         type: String,
-        require: [true, 'Please add a themem_color'],
+        // require: [true, 'Please add a themem_color'],
+        require: [true, 'โปรดใส่สีธีม'],
         maxLength: 8,
     },
     community_posts:[{
