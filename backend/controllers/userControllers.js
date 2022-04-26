@@ -9,6 +9,7 @@ const notificationModel = require("../models/notificationModel");
 const subjectGradeModel = require("../models/subjectGradeModel");
 const semesterGradeModel = require("../models/semesterGradeModel");
 const transcriptModel = require("../models/transcriptModel");
+const { populate_recruit_post_config } = require("../configuration/populate_config");
 
 // @desc    Register new user
 // @route   POST /api/users/register
