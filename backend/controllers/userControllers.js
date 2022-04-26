@@ -93,7 +93,7 @@ const loginUser = asyncHandler(async (req, res) => {
             student_year: user.student_year,
             role: user.role,
             img_url: user.img_url,
-            notifications: await notificationModel.find({ receiver_id: user._id }).sort({createdAt: -1}),
+            notifications: await notificationModel.find({ receiver_id: user._id }).sort({ createdAt: -1 }),
             token: generateToken(user.id)
         })
     } else {
@@ -144,9 +144,13 @@ const getUsers = asyncHandler(async (req, res) => {
     if (req.body['sort'] == undefined) {
         req.body['sort'] = {}
     }
+    if (req.body['search'] == undefined) {
+        req.body['search'] = ''
+    }
     if (req.body['page'] == undefined) {
         req.body['page'] = 1
     }
+
     let page = req.body['page'].toString().match(/^[0-9]*$/)
     if (page == null || page[0] < 1) {
         page = 1
@@ -161,11 +165,22 @@ const getUsers = asyncHandler(async (req, res) => {
         // throw Error('Users not found')
         throw Error('ไม่พบผู้ใช้งาน')
     }
+    let search = []
+    if (req.body['search'] !== '') {
+        users.forEach(user => {
+            if (JSON.stringify(user).replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'])) {
+                search.push(user)
+            }
+        });
+    } else {
+        search = users
+    }
+
     // users.push({
     //     total: Math.ceil(users_length / 10)
     // })
     res.status(200).json({
-        users: users,
+        users: search,
         total: Math.ceil(users_length / 10)
     })
 })
@@ -179,7 +194,7 @@ const getMe = asyncHandler(async (req, res) => {
     if (user.role == 'student') {
         user['requested'] = await recruitPostModel.find({ _id: recruit_posts }).populate(populate_recruit_post_config)
         user['communities'] = await communityModel.find({ recruit_post_id: communities })//.populate('recruit_post_id')//.select('-attendances')//.populate(populate_community_config)
-        user['transcript'] = await transcriptModel.findOne({owner_id: user._id})
+        user['transcript'] = await transcriptModel.findOne({ owner_id: user._id })
     }
     if (user.role == 'teacher') {
         user['recruit_posts'] = await recruitPostModel.find({ owner_id: user._id }).populate(populate_recruit_post_config)
@@ -223,7 +238,7 @@ const createTranscript = asyncHandler(async (req, res) => {
         subjects.push({
             owner_id: user._id.toString(),
             subject_id: subject.id,
-            subject_name:subject.name,
+            subject_name: subject.name,
             subject_grade: subject.grade
         })
     });
