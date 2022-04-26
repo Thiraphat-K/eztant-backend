@@ -278,8 +278,8 @@ const createTranscript = asyncHandler(async (req, res) => {
     await transcript_user.save()
     res.status(200).json({
         // 'message': 'Successfully',
-        'message': 'สำเร็จ',
-        // "pdf": transcript
+        message: 'สำเร็จ',
+        transcript: transcript
     })
 })
 
