@@ -276,7 +276,7 @@ const deleteRecruitPost = asyncHandler(async (req, res) => {
     await communityPostModel.deleteMany({ _id: community.community_posts})
     await communityModel.deleteOne({ _id: community._id, owner_id: user._id })
     await scheduleModel.deleteMany({ _id: recruit_post.schedules })
-    await recruitPostModel.deleteOne({ _id: req.body['_id'], owner_id: user._id })
+    await recruitPostModel.deleteOne({ _id: req.params['_id'], owner_id: user._id })
     res.status(200).json({
         message: 'ลบโพสต์ดังกล่าวสำเร็จ'
     })
