@@ -62,18 +62,18 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
         aggregate_config.push({ '$sort': { 'likes_length': req.body['sort']['likes'] } })
         recruit_posts = await recruitPostModel.aggregate(aggregate_config)
         recruit_posts_length = recruit_posts.length
-        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page-1)*10).limit(10)
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page - 1) * 10).limit(10)
 
     } else if (req.body['sort']['owner_id'] !== undefined) {
         aggregate_config.push({ '$sort': req.body['sort']['owner_id'] })
         recruit_posts = await recruitPostModel.aggregate(aggregate_config)
         recruit_posts_length = recruit_posts.length
-        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page-1)*10).limit(10)
+        recruit_posts = await recruitPostModel.aggregate(aggregate_config).skip((page - 1) * 10).limit(10)
 
     } else {
         recruit_posts = await recruitPostModel.aggregate(aggregate_config)
         recruit_posts_length = recruit_posts.length
-        recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config).sort(req.body['sort']).skip((page-1)*10).limit(10)
+        recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config).sort(req.body['sort']).skip((page - 1) * 10).limit(10)
     }
     // recruit_posts = await recruitPostModel.find(req.body['filter']).populate(populate_recruit_post_config)//.sort(req.body['sort'])
 
@@ -101,7 +101,7 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
     }
     res.status(200).json({
         posts: search,
-        total: Math.ceil(recruit_posts_length/10),
+        total: Math.ceil(recruit_posts_length / 10),
     })
 })
 
@@ -128,7 +128,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         // throw new Error('Please add subject_id field in range 00000000 - 99999999')
         throw new Error('โปรดใส่รหัสวิชา (8 หลัก)')
     }
-    
+
     let sections = new Set()
     let schedule_times = []
     schedules.forEach(schedule => {
@@ -138,7 +138,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
             // throw new Error('Please add a day field in correct value \" sunday monday tuesday wednesday thursday friday saturday \"')
             throw new Error('โปรดใส่วันให้ถูกต้อง \" sunday monday tuesday wednesday thursday friday saturday \"')
         }
-        if (schedule.max_ta<1||schedule.max_ta > 10) {
+        if (schedule.max_ta < 1 || schedule.max_ta > 10) {
             res.status(400)
             throw new Error('Please add a max_ta field in range 1-10')
         }
@@ -221,11 +221,11 @@ const setRecruitPost = asyncHandler(async (req, res) => {
             }
         }
     }
-    
+
     const schedules_model = await scheduleModel.insertMany(schedules)
     const recruit_post = await recruitPostModel.create({
         owner_id: req.user.id,
-        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired, department:req.user.department
+        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired, department: req.user.department
     })
     schedules_model.forEach(schedule => {
         schedule.recruit_post_id = recruit_post._id
@@ -362,12 +362,12 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     // check requirement grade
-    const grade = await subjectGradeModel.findOne({owner_id: user._id, subject_id: recruit_post.subject_id})
+    const grade = await subjectGradeModel.findOne({ owner_id: user._id, subject_id: recruit_post.subject_id })
     if (!grade) {
         res.status(400)
         throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากไม่มีเกรดตามคุณสมบัติที่กำหนด')
     }
-    if (gradeUitls[grade.subject_grade]<gradeUitls[recruit_post.requirement_grade]) {
+    if (gradeUitls[grade.subject_grade] < gradeUitls[recruit_post.requirement_grade]) {
         res.status(400)
         throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากเกรดไม่ตรงตามคุณสมบัติที่กำหนด')
     }
