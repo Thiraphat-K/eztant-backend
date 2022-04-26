@@ -265,7 +265,7 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
 
     // check like toggle
     const likes = await recruitPostModel.find({ _id: req.params['_id'], likes: user._id })
-    if (!likes.length && user._id !== recruit_post.owner_id) {
+    if (!likes.length && user._id.toString() !== recruit_post.owner_id.toString()) {
         recruit_post.likes.push(user._id)
         // create notification
         const notification = await notificationModel.create({
