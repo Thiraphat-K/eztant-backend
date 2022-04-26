@@ -10,7 +10,7 @@ const transcriptSchema = mongoose.Schema({
         type: String,
         // require: [true, 'Please add a subject_id'],
         require: [true, 'โปรดใส่รหัสวิชา'],
-        maxLength: 8
+        maxLength: 100
     },
     lastname: {
         type: String,
@@ -26,11 +26,7 @@ const transcriptSchema = mongoose.Schema({
         min: [0, 'Please add id in range 00000000-99999999'],
         max: [99999999, 'Please add id in range 00000000-99999999'],
     },
-    semesters: [{
-        type: mongoose.Schema.Types.ObjectId,
-        required: false,
-        ref: 'semesterModel'
-    }],
-})
+    semesters: [],
+}, { timestamps: true })
 
 module.exports = mongoose.model('transcriptModel', transcriptSchema)
