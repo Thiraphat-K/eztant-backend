@@ -21,6 +21,8 @@ const subjectGradeSchema = mongoose.Schema({
         require: [true, 'Please add a subject_id'],
         maxLength: 2,
     }
+},{
+    timestamps: true
 })
 
 module.exports = mongoose.model('subjectGradeModel', subjectGradeSchema)
