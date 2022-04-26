@@ -400,7 +400,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
             receiver_id: recruit_post.owner_id,
             event_type: 'recruitPostModel requested',
             description: `คุณ ${user.firstname} ${user.lastname} ได้กด request โพสต์รับ TA ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} ที่ section ${schedule.section}`,
-            api_link: `http://localhost:8000/api/recruit_post/${recruit_post._id}`,
+            api_link: recruit_post._id,
         })
         notification.save()
         schedule.requested.push(user._id)
@@ -475,7 +475,7 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
             receiver_id: req.params['user_id'],
             event_type: 'recruitPostModel accepted',
             description: `คุณได้รับการตอบรับการเป็น TA จากอาจารย์ที่เป็นเจ้าของโพสต์รับ TA วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} ที่ section ${schedule.section} สามารถเข้าไปเยี่ยมชม Community ของโพสต์นี้ได้ ณ ตอนนี้`,
-            api_link: `http://localhost:8000/api/community/${recruit_post.community_id}`,
+            api_link: recruit_post.community_id,
         })
         notification.save()
     } else {
