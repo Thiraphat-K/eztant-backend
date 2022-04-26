@@ -81,12 +81,10 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
         // throw Error('Recruit post not found')
         throw Error('ไม่พบการรับสมัคร')
     }
-    recruit_posts.push(
-        {
-            total: Math.ceil(recruit_posts_length/10)
-        }
-    )
-    res.status(200).json(recruit_posts)
+    res.status(200).json({
+        posts: recruit_posts,
+        total: Math.ceil(recruit_posts_length/10),
+    })
 })
 
 const setRecruitPost = asyncHandler(async (req, res) => {
