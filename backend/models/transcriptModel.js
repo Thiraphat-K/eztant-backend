@@ -3,18 +3,20 @@ const { default: mongoose } = require("mongoose");
 const transcriptSchema = mongoose.Schema({
     owner_id: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true, 'Please add a owner_id'],
-        ref: 'userModel'
+        // require: [true, 'Please add a owner_id'],
+        require: [true, 'โปรดใส่รหัสนักศึกษา'],
     },
     firstname: {
         type: String,
-        required: [true, 'Please add a firstname'],
-        maxLength: 25
+        // require: [true, 'Please add a subject_id'],
+        require: [true, 'โปรดใส่รหัสวิชา'],
+        maxLength: 8
     },
     lastname: {
         type: String,
-        required: [true, 'Please add a lastname'],
-        maxLength: 25
+        // require: [true, 'Please add a subject_name'],
+        require: [true, 'โปรดใส่ชื่อวิชา'],
+        maxLength: 100
     },
     student_id: {
         type: Number,

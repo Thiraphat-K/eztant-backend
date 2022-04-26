@@ -13,30 +13,39 @@ const recruitPostSchema = mongoose.Schema({
     },
     subject_name: {
         type: String,
-        require: [true, 'Please add a subject_name'],
+        // require: [true, 'Please add a subject_name'],
+        require: [true, 'โปรดใส่ชื่อวิชา'],
         maxLength: 100,
     },
     subject_id: {
         type: String,
-        require: [true, 'Please add a subject_id'],
+        // require: [true, 'Please add a subject_id'],
+        require: [true, 'โปรดใส่รหัสวิชา'],
         maxLength: 8
     },
     wage: {
         type: Number,
-        require: [true, 'Please add a wage'],
-        min: [0, 'Please add a wage in range 0-99999'],
-        max: [99999, 'Please add a wage in range 0-99999'],
+        // require: [true, 'Please add a wage'],
+        // min: [0, 'Please add a wage in range 0-99999'],
+        // max: [99999, 'Please add a wage in range 0-99999'],
+        require: [true, 'โปรดใส่ค่าตอบแทน'],
+        min: [0, 'โปรดใส่ค่าตอบแทน (0-99999)'],
+        max: [99999, 'โปรดใส่ค่าตอบแทน (0-99999)'],
     },
     requirement_grade: {
         type: String,
-        require: [true, 'Please add a requirement_grade'],
+        // require: [true, 'Please add a requirement_grade'],
+        require: [true, 'โปรดใส่เกรดที่ต้องการ'],
         maxLength: 2
     },
     requirement_year: [{
         type: Number,
-        require: [true, 'Please add a requirement_year'],
-        min: [1, 'Please add a requirement_year in range 1-8'],
-        max: [8, 'Please add a requirement_year in range 1-8']
+        // require: [true, 'Please add a requirement_year'],
+        // min: [1, 'Please add a requirement_year in range 1-8'],
+        // max: [8, 'Please add a requirement_year in range 1-8']
+        require: [true, 'โปรดใส่ชั้นปีที่ต้องการ'],
+        min: [1, 'โปรดใส่ชั้นปีที่ต้องการ (1-8)'],
+        max: [8, 'โปรดใส่ชั้นปีที่ต้องการ (1-8)']
     }],
     description: {
         type: String,
@@ -71,7 +80,8 @@ const recruitPostSchema = mongoose.Schema({
     },
     expired: {
         type: Date,
-        require: [true, 'Please add a expired'],
+        // require: [true, 'Please add a expired'],
+        require: [true, 'โปรดใส่ระยะเวลาการเปิดรับสมัคร'],
     }
 }, {
     timestamps: true,

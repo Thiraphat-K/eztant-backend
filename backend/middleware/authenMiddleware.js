@@ -12,18 +12,21 @@ const protect = asyncHandler(async (req, res, next) => {
             // console.log(req.user);
             if (!req.user) {
                 res.status(401)
-                throw new Error('User not found')
+                // throw new Error('User not found')
+                throw new Error('ไม่พบผู้ใช่งาน')
             }
             next()
         } catch (error) {
             // console.log(error);
             res.status(401)
-            throw new Error('Not Authorized')
+            // throw new Error('Not Authorized')
+            throw new Error('ไม่ได้รับอนุญาต')
         }
     }
     if (!token) {
         res.status(401)
-        throw new Error('Not Authorized, no token')
+        // throw new Error('Not Authorized, no token')
+        throw new Error('ไม่ได้รับอนุญาต เนื่องจากไม่มีโทเคน')
     }
 })
 

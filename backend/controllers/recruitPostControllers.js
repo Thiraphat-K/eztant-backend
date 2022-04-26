@@ -18,7 +18,8 @@ const getRecruitPost = asyncHandler(async (req, res) => {
     }
     if (!recruit_post) {
         res.status(401)
-        throw Error('Recruit post not found')
+        // throw Error('Recruit post not found')
+        throw Error('ไม่พบการรับสมัคร')
     }
     res.status(200).json(recruit_post)
 })
@@ -77,7 +78,8 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
 
     if (!recruit_posts) {
         res.status(401)
-        throw Error('Recruit post not found')
+        // throw Error('Recruit post not found')
+        throw Error('ไม่พบการรับสมัคร')
     }
     recruit_posts.push(
         {
@@ -92,19 +94,23 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
     if (user && user.role == 'student') {
         res.status(401)
-        throw new Error('User role is not allowed')
+        // throw new Error('User role is not allowed')
+        throw new Error('ไม่มีสิทธิ์การเข้าถึง')
     }
     if (!(subject_name && subject_id && wage && requirement_grade && requirement_year && expired)) {
         res.status(400)
-        throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
+        // throw new Error('Please add subject_name && subject_id && wage && requirement_grade && requirement_year && expired fields')
+        throw new Error('กรุณาใส่ : ชื่อวิชา รหัสวิชา ค่าตอบแทน เกรดที่ต้องการ ชั้นปีที่ต้องการ และระยะเวลาที่เปิดรับสมัคร')
     }
     if (isNaN(subject_id) || typeof subject_id !== 'string' || subject_id.length !== 8) {
         res.status(400)
-        throw new Error('Please add subject_id field with 8 digit number in string type')
+        // throw new Error('Please add subject_id field with 8 digit number in string type')
+        throw new Error('โปรดใส่รหัสวิชา (8 หลัก)')
     }
     if (parseInt(subject_id) < 0 || parseInt(subject_id) > 99999999) {
         res.status(400)
-        throw new Error('Please add subject_id field in range 00000000 - 99999999')
+        // throw new Error('Please add subject_id field in range 00000000 - 99999999')
+        throw new Error('โปรดใส่รหัสวิชา (8 หลัก)')
     }
     
     let sections = new Set()
@@ -113,7 +119,8 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         sections.add(schedule.section)
         if (!day[schedule.day]) {
             res.status(400)
-            throw new Error('Please add a day field in correct value \" sunday monday tuesday wednesday thursday friday saturday \"')
+            // throw new Error('Please add a day field in correct value \" sunday monday tuesday wednesday thursday friday saturday \"')
+            throw new Error('โปรดใส่วันให้ถูกต้อง \" sunday monday tuesday wednesday thursday friday saturday \"')
         }
         if (schedule.max_ta<1||schedule.max_ta > 10) {
             res.status(400)
@@ -123,38 +130,45 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         let time_from = schedule.time_from.split(':')
         if (time_from[0].length !== 2 || time_from[1].length !== 2 || isNaN(time_from[0]) || isNaN(time_from[1])) {
             res.status(400)
-            throw new Error('Please add time_from field in schedule with HH:MM')
+            // throw new Error('Please add time_from field in schedule with HH:MM')
+            throw new Error('โปรดใส่เวลาให้ถูกต้อง (HH:MM)')
         }
         time_from[0] = parseInt(time_from[0])
         time_from[1] = parseInt(time_from[1])
         if (time_from[1] < 0 || 59 < time_from[1]) {
             res.status(400)
-            throw new Error('Please add time_from field in schedule with 00<=MM<=59')
+            // throw new Error('Please add time_from field in schedule with 00<=MM<=59')
+            throw new Error('โปรดใส่นาทีให้ถูกต้อง (00 ถึง 59)')
         }
         if (time_from[0] < 0 || 23 < time_from[0]) {
             res.status(400)
-            throw new Error('Please add time_from field in schedule with 00<=HH<=23')
+            // throw new Error('Please add time_from field in schedule with 00<=HH<=23')
+            throw new Error('โปรดใส่ชั่วโมงให้ถูกต้อง (00 ถึง 23)')
         }
 
         let time_to = schedule.time_to.split(':')
         if (time_to[0].length !== 2 || time_to[1].length !== 2 || isNaN(time_to[0]) || isNaN(time_to[1])) {
             res.status(400)
-            throw new Error('Please add time_to field in schedule with HH:MM')
+            // throw new Error('Please add time_to field in schedule with HH:MM')
+            throw new Error('โปรดใส่เวลาให้ถูกต้อง (HH:MM)')
         }
         time_to[0] = parseInt(time_to[0])
         time_to[1] = parseInt(time_to[1])
 
         if (time_to[1] < 0 || 59 < time_to[1]) {
             res.status(400)
-            throw new Error('Please add time_to field in schedule with 00<=MM<=59')
+            // throw new Error('Please add time_to field in schedule with 00<=MM<=59')
+            throw new Error('โปรดใส่นาทีให้ถูกต้อง (00 ถึง 59)')
         }
         if (time_to[0] < 0 || 23 < time_to[0]) {
             res.status(400)
-            throw new Error('Please add time_to field in schedule with 00<=HH<=23')
+            // throw new Error('Please add time_to field in schedule with 00<=HH<=23')
+            throw new Error('โปรดใส่ชั่วโมงให้ถูกต้อง (00 ถึง 23)')
         }
         if (time_from[0] * 60 + time_from[1] >= time_to[0] * 60 + time_to[1]) {
             res.status(400)
-            throw new Error('Please add time_from before time_to')
+            // throw new Error('Please add time_from before time_to')
+            throw new Error('โปรดใส่ช่วงเวลาการสอน')
         }
         schedule_times.push({
             day: day[schedule.day],
@@ -164,7 +178,8 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     });
     if (sections.size < schedules.length) {
         res.status(400)
-        throw new Error('Please add section field in schedules without duplicate')
+        // throw new Error('Please add section field in schedules without duplicate')
+        throw new Error('โปรดใส่กลุ่มเรียน (ห้ามซ้ำ)')
     }
     for (let i = 0; i < schedule_times.length; i++) {
         for (let j = i + 1; j < schedule_times.length; j++) {
@@ -172,7 +187,8 @@ const setRecruitPost = asyncHandler(async (req, res) => {
                 let before, after
                 if (schedule_times[i].time_from == schedule_times[j].time_from || schedule_times[i].time_to == schedule_times[j].time_to) {
                     res.status(400)
-                    throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                    // throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                    throw new Error('โปรดใส่ช่วงเวลาการสอน (ไม่อยู่ในคาบเวลาของกลุ่มเรียนอื่น)')
                 }
                 if (schedule_times[i].time_from < schedule_times[j].time_from) {
                     before = schedule_times[i]
@@ -183,7 +199,8 @@ const setRecruitPost = asyncHandler(async (req, res) => {
                 }
                 if (before.time_to > after.time_from) {
                     res.status(400)
-                    throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                    // throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
+                    throw new Error('โปรดใส่ช่วงเวลาการสอน (ไม่อยู่ในคาบเวลาของกลุ่มเรียนอื่น)')
                 }
             }
         }
@@ -211,7 +228,8 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid recruit post')
+        // throw new Error('Invalid recruit post')
+        throw new Error('การรับสมัครไม่ถูกต้อง')
     }
 })
 
@@ -219,12 +237,14 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
     if (!req.params['_id']) {
         res.status(401)
-        throw new Error('recruit_post_id not found')
+        // throw new Error('recruit_post_id not found')
+        throw new Error('ไม่พบรหัสการรับสมัคร')
     }
     const recruit_post = await recruitPostModel.findById(req.params['_id'])
     if (!recruit_post) {
         res.status(401)
-        throw new Error('recruit_post not found')
+        // throw new Error('recruit_post not found')
+        throw new Error('ไม่พบการรับสมัคร')
     }
 
     // check like toggle
@@ -250,7 +270,8 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid recruit post')
+        // throw new Error('Invalid recruit post')
+        throw new Error('การรับสมัครไม่ถูกต้อง')
     }
 })
 
@@ -258,16 +279,19 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
     if (!req.params['_id']) {
         res.status(401)
-        throw new Error('recruit_post_id not found')
+        // throw new Error('recruit_post_id not found')
+        throw new Error('ไม่พบรหัสการรับสมัคร')
     }
     const recruit_post = await recruitPostModel.findById(req.params['_id'])
     if (!recruit_post) {
         res.status(401)
-        throw new Error('recruit_post not found')
+        // throw new Error('recruit_post not found')
+        throw new Error('ไม่พบการรับสมัคร')
     }
     if (!req.body['comment']) {
         res.status(401)
-        throw new Error('Please add a comment')
+        // throw new Error('Please add a comment')
+        throw new Error('โปรดใส่คอมเมนต์')
     }
     const comment = await commentModel.create({
         owner_id: user._id,
@@ -275,7 +299,8 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
     })
     if (!comment) {
         res.status(401)
-        throw new Error('Invalid comment')
+        // throw new Error('Invalid comment')
+        throw new Error('คอมเมนต์ไม่ถูกต้อง')
     }
     recruit_post.comments.push(comment._id)
     await recruit_post.save()
@@ -284,7 +309,8 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid recruit post')
+        // throw new Error('Invalid recruit post')
+        throw new Error('การรับสมัครไม่ถูกต้อง')
     }
 })
 
@@ -293,7 +319,8 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     // check role user
     if (user.role !== 'student') {
         res.status(401)
-        throw new Error('User not allowed to request because the user is not student role')
+        // throw new Error('User not allowed to request because the user is not student role')
+        throw new Error('สำหรับนักศึกษาเท่านั้น')
     }
     if (!req.params['_id']) {
         res.status(401)
@@ -306,14 +333,16 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         recruit_post.isOpened = false
         recruit_post.save()
         res.status(401)
-        throw new Error('User cannot requested or unrequested because recruit post is expired')
+        // throw new Error('User cannot requested or unrequested because recruit post is expired')
+        throw new Error('หมดเวลาการรับสมัคร')
     }
 
     // check requirement year
     const set = new Set(recruit_post.requirement_year)
     if (recruit_post.requirement_year.length < set.add(user.student_year).size) {
         res.status(401)
-        throw new Error('User cannot request because student_year is not allowes requirement_year')
+        // throw new Error('User cannot request because student_year is not allowes requirement_year')
+        throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากระดับชั้นปีไม่เหมาะสม')
     }
 
     // check requirement grade
@@ -321,14 +350,16 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
 
     if (!schedule) {
         res.status(401)
-        throw new Error('schedule not found')
+        // throw new Error('schedule not found')
+        throw new Error('ไม่พบตารางสอน')
     }
 
     // check requese in other schedules
     const other_requests = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
     if (other_requests && schedule.section !== other_requests.section) {
         res.status(401)
-        throw new Error('User cannot duplicate request in other schedules')
+        // throw new Error('User cannot duplicate request in other schedules')
+        throw new Error('ไม่สามารถสมัครในกลุ่มเรียนอื่นได้')
     }
 
     // check requested toggle
@@ -337,7 +368,8 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
             res.status(401)
-            throw new Error('failed requested because accepted users exceed')
+            // throw new Error('failed requested because accepted users exceed')
+            throw new Error('ไม่สามารถสมัครได้ (เต็มจำนวนการรับสมัครแล้ว)')
         }
         // create notification
         const notification = await notificationModel.create({
@@ -353,7 +385,8 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         const accepted = await scheduleModel.find({ _id: req.params['_id'], accepted: user._id })
         if (accepted.length) {
             res.status(401)
-            throw new Error('User cannot unrequest because teacher has accepcted your request')
+            // throw new Error('User cannot unrequest because teacher has accepcted your request')
+            throw new Error('ไม่สามารถยกเลิกการสมัครได้ เนื่องจากอาจารย์ผู้สอนตอบรับการสมัครแล้ว')
         }
         schedule.requested.pull(user._id)
     }
@@ -364,7 +397,8 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid schedule')
+        // throw new Error('Invalid schedule')
+        throw new Error('ตารางสอนไม่ถูกต้อง')
     }
 })
 
@@ -372,30 +406,35 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
     if (!req.params['schedule_id']) {
         res.status(401)
-        throw new Error('recruit_post_id not found')
+        // throw new Error('recruit_post_id not found')
+        throw new Error('รหัสการรับสมัครไม่ถูกต้อง')
     }
 
     const schedule = await scheduleModel.findById(req.params['schedule_id'])
     if (!schedule) {
         res.status(401)
-        throw new Error('schedule not found')
+        // throw new Error('schedule not found')
+        throw new Error('ไม่พบตารางการสอน')
     }
     // check user id == owner recruit post id
     const recruit_post = await recruitPostModel.findById(schedule.recruit_post_id)
     if (!recruit_post) {
         res.status(401)
-        throw new Error('recruit_post not found')
+        // throw new Error('recruit_post not found')
+        throw new Error('ไม่พบรหัสการรับสมัคร')
     }
     if (user._id.toString() !== recruit_post.owner_id.toString()) {
         res.status(401)
-        throw new Error('User is not owner of the recruited post')
+        // throw new Error('User is not owner of the recruited post')
+        throw new Error('ไม่ใช่อาจารย์ผู้ดูแลการรับสมัคร')
     }
 
     // check cancelled to request or user_id not found in requested schedule
     const requested = await scheduleModel.find({ _id: req.params['schedule_id'], requested: req.params['user_id'] })
     if (!requested.length) {
         res.status(401)
-        throw new Error('User cancelled to request or User not found in the schedule')
+        // throw new Error('User cancelled to request or User not found in the schedule')
+        throw new Error('ไม่พบผู้สมัคร')
     }
     // check accepted toggle
     const accepted = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
@@ -403,7 +442,8 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
             res.status(401)
-            throw new Error('Owner cannot accepted bacause accepted users exceed')
+            // throw new Error('Owner cannot accepted bacause accepted users exceed')
+            throw new Error('ไม่สามารถตอบรับการสมัครได้ เนื่องจากครบจำนวนการรับสมัครแล้ว')
         }
         schedule.accepted.push(req.params['user_id'])
         // create notification
@@ -425,7 +465,8 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
         res.status(201).json(post)
     } else {
         res.status(400)
-        throw new Error('Invalid schedule')
+        // throw new Error('Invalid schedule')
+        throw new Error('ตารางสอนไม่ถูกต้อง')
     }
 })
 

@@ -18,26 +18,31 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (!(email && password && firstname && lastname && role && department)) {
         res.status(400)
-        throw new Error('Please add email && password && firstname && lastname && role && department fields')
+        // throw new Error('Please add email && password && firstname && lastname && role && department fields')
+        throw new Error('โปรดใส่ : อีเมลล์ รหัสผ่าน ชื่อ นามสกุล เลือกตำแหน่ง(อาจารย์ผู้สอน หรือนักศึกษา) และภาควิชา')
     }
     if (role == 'student' && !(student_id && student_year)) {
         res.status(400)
-        throw new Error('Please add student_id && student_year fields in student role')
+        // throw new Error('Please add student_id && student_year fields in student role')
+        throw new Error('โปรดใส่ : รหัสนักศึกษา และชั้นปี')
     }
     if (role == 'teacher' && (student_id || student_year)) {
         res.status(400)
-        throw new Error('Please not add student_id && student_year fields in teacher role')
+        // throw new Error('Please not add student_id && student_year fields in teacher role')
+        throw new Error('ห้ามใส่ : รหัสนักศึกษา และชั้นปี')
     }
     // check if user exists with email
     if (await userModel.findOne({ email })) {
         res.status(400)
-        throw new Error('User has already exists email')
+        // throw new Error('User has already exists email')
+        throw new Error('อีเมลล์นี้ถูกใช้งานแล้ว')
     }
 
     // check if user exists with student_id
     if (role == 'student' && role !== 'teacher' && await userModel.findOne({ student_id })) {
         res.status(400)
-        throw new Error('User has already exists student_id')
+        // throw new Error('User has already exists student_id')
+        throw new Error('รหัสนักศึกษานี้ถูกใช้งานแล้ว')
     }
 
     // hash password
@@ -64,7 +69,8 @@ const registerUser = asyncHandler(async (req, res) => {
         })
     } else {
         res.status(400)
-        throw new Error('Invalid user data')
+        // throw new Error('Invalid user data')
+        throw new Error('ข้อมูลไม่ถูกต้อง')
     }
 })
 
@@ -72,7 +78,8 @@ const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     if (!(email && password)) {
         res.status(400)
-        throw new Error('Please add email && password fields')
+        // throw new Error('Please add email && password fields')
+        throw new Error('โปรดใส่ : อีเมลล์ และรหัสผ่าน')
     }
     // check for user email
     const user = await userModel.findOne({ email })
@@ -91,7 +98,8 @@ const loginUser = asyncHandler(async (req, res) => {
         })
     } else {
         res.status(400)
-        throw new Error('Invalid Credentials')
+        // throw new Error('Invalid Credentials')
+        throw new Error('โปรดใส่ข้อมูลส่วนตัว')
     }
 })
 
@@ -99,11 +107,13 @@ const updateUser = asyncHandler(async (req, res) => {
     const { email, firstname, lastname, role, student_id, student_year } = req.body
     if (!(email && firstname && lastname && role)) {
         res.status(400)
-        throw new Error('Please add all fields')
+        // throw new Error('Please add all fields')
+        throw new Error('โปรดใส่ข้อมูลให้ครบถ้วน')
     }
     if (role === 'student' && !(student_id && student_year)) {
         res.status(400)
-        throw new Error('Please add student_id && student_year fields in student role')
+        // throw new Error('Please add student_id && student_year fields in student role')
+        throw new Error('โปรดใส่ : รหัสนักศึกษา และชั้นปี')
     }
     const updatedUser = await userModel.findByIdAndUpdate(
         req.user.id,
@@ -148,7 +158,8 @@ const getUsers = asyncHandler(async (req, res) => {
     users = await userModel.find(req.body['filter']).select('_id email firstname lastname role department student_id student_year img_url').sort(req.body['sort']).skip((page - 1) * 10).limit(10)
     if (!users) {
         res.status(400)
-        throw Error('Users not found')
+        // throw Error('Users not found')
+        throw Error('ไม่พบผู้ใช้งาน')
     }
     // users.push({
     //     total: Math.ceil(users_length / 10)
