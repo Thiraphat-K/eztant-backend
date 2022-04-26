@@ -417,10 +417,10 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     // check requese in other schedules
     const other_requests = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
     if (other_requests && schedule.section !== other_requests.section) {
-        res.status(401)
+        res.status(200)
         other_requests.requested.pull(user._id)
         // throw new Error('User cannot duplicate request in other schedules')
-        throw new Error('ไม่สามารถสมัครในกลุ่มเรียนอื่นได้')
+        // throw new Error('ไม่สามารถสมัครในกลุ่มเรียนอื่นได้')
     }
 
     // check requested toggle
