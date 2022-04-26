@@ -7,7 +7,6 @@ const communityModel = require("../models/communityModel");
 const scheduleModel = require('../models/scheduleModel');
 const notificationModel = require("../models/notificationModel");
 const subjectGradeModel = require("../models/subjectGradeModel");
-const semesterGradeModel = require("../models/semesterGradeModel");
 const transcriptModel = require("../models/transcriptModel");
 const { populate_recruit_post_config } = require("../configuration/populate_config");
 
@@ -221,10 +220,14 @@ const createTranscript = asyncHandler(async (req, res) => {
     });
     let subjects = []
     filtered.forEach(subject => {
-        subject['owner_id'] = user._id.toString()
+        subjects.push({
+            owner_id: user._id.toString(),
+            subject_id: subject.id,
+            subject_name:subject.name,
+            subject_grade: subject.grade
+        })
     });
-    console.log(filtered);
-    subjects = await subjectGradeModel.insertMany(filtered)
+    subjects = await subjectGradeModel.insertMany(subjects)
     subjects.forEach(subject => {
         subject.save()
     });
