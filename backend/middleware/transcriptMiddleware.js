@@ -19,7 +19,7 @@ const exportPDF = asyncHandler(async (req, res, next) => {
     if (!validateTranscript(result.text, result.info, result.metadata)) {
         res.status(400)
         // throw new Error('Transcript is not validated. Please add transcript file again.')
-        throw new Error('ทรานสคลิปไม่ถูกต้อง โปรดใส่ใหม่')
+        throw new Error('ทรานสคริปต์ไม่ถูกต้อง โปรดใส่ใหม่')
     }
     const rawData = (result.text).split(/\n/);
     let subData = rawData.slice(15, rawData.length - 8);
@@ -42,7 +42,7 @@ const exportPDF = asyncHandler(async (req, res, next) => {
     if (mockData['studentID'] !== user.student_id.toString()) {
         res.status(400)
         // throw new Error('User is not owned transcript')
-        throw new Error('ทรานสคลิปของบุคคลอื่น')
+        throw new Error('ทรานสคริปต์ของบุคคลอื่น')
     }
     for (n in subData) {
         let semesterPat = /Semester/, gpsPat = /GPS/;
