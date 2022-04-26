@@ -8,7 +8,9 @@ const communityModel = require('../models/communityModel')
 const notificationModel = require('../models/notificationModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
+const subjectGradeModel = require('../models/subjectGradeModel')
 const userModel = require('../models/userModel')
+const { gradeUitls } = require('../utils/gradeUtils')
 const getRecruitPost = asyncHandler(async (req, res) => {
     const recruit_post = await recruitPostModel.findById(req.params['_id']).populate(populate_recruit_post_config)
     // check expired date
@@ -344,7 +346,15 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     // check requirement grade
-
+    const grade = await subjectGradeModel.findOne({owner_id: user._id, subject_id: recruit_post.subject_id})
+    if (!grade) {
+        res.status(400)
+        throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากไม่มีเกรดตามคุณสมบัติที่กำหนด')
+    }
+    if (gradeUitls[grade.subject_grade]<gradeUitls[recruit_post.requirement_grade]) {
+        res.status(400)
+        throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากเกรดไม่ตรงตามคุณสมบัติที่กำหนด')
+    }
 
     if (!schedule) {
         res.status(401)
