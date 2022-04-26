@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router()
-const { setRecruitPost, likeRecruitPost, requestedRecruitPost, acceptedRecruitPost, commentRecruitPost, getRecruitPosts, getRecruitPost } = require("../controllers/recruitPostControllers");
+const { setRecruitPost, likeRecruitPost, requestedRecruitPost, acceptedRecruitPost, commentRecruitPost, getRecruitPosts, getRecruitPost, recommendRecruitPost } = require("../controllers/recruitPostControllers");
 const { protect } = require("../middleware/authenMiddleware");
 
 router.post('/getposts', protect, getRecruitPosts)
+router.get('/recommends', protect, recommendRecruitPost)
 router.post('/create', protect, setRecruitPost)
 router.get('/:_id', protect, getRecruitPost)
 router.post('/:_id/like', protect, likeRecruitPost)
