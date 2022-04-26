@@ -43,6 +43,9 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
     if (req.body['sort'] == undefined) {
         req.body['sort'] = {}
     }
+    if (req.body['search'] == undefined) {
+        req.body['search'] = ''
+    }
     if (req.body['page'] == undefined) {
         req.body['page'] = 1
     }
@@ -78,13 +81,24 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
     //     console.log(post);
     // });
 
-    if (!recruit_posts) {
+    let search = []
+    if (req.body['search'] !== '') {
+        recruit_posts.forEach(user => {
+            if (JSON.stringify(user).replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'])) {
+                search.push(user)
+            }
+        });
+    } else {
+        search = recruit_posts
+    }
+
+    if (!search) {
         res.status(401)
         // throw Error('Recruit post not found')
         throw Error('ไม่พบการรับสมัคร')
     }
     res.status(200).json({
-        posts: recruit_posts,
+        posts: search,
         total: Math.ceil(recruit_posts_length/10),
     })
 })
