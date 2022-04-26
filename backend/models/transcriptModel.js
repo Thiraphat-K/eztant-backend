@@ -23,8 +23,10 @@ const transcriptSchema = mongoose.Schema({
         required: false,
         unique: true,
         sparse: true,
-        min: [0, 'Please add id in range 00000000-99999999'],
-        max: [99999999, 'Please add id in range 00000000-99999999'],
+        // min: [0, 'Please add id in range 00000000-99999999'],
+        // max: [99999999, 'Please add id in range 00000000-99999999'],
+        min: [0, 'โปรดใส่รหัสนักศึกษา (00000000-99999999)'],
+        max: [99999999, 'โปรดใส่รหัสนักศึกษา (00000000-99999999)'],
     },
     semesters: [],
 }, { timestamps: true })

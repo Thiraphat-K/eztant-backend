@@ -254,7 +254,11 @@ const createTranscript = asyncHandler(async (req, res) => {
     }
     transcript_user = await transcriptModel.create(transcript)
     await transcript_user.save()
-    res.status(200).json(transcript_user)
+    res.status(200).json({
+        // 'message': 'Successfully',
+        'message': 'สำเร็จ',
+        // "pdf": transcript
+    })
 })
 
 const generateToken = (id) => {
