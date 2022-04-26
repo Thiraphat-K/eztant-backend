@@ -25,7 +25,6 @@ const getNotification = asyncHandler(async (req, res) => {
     for (let i = 20; i < update_notifications.length; i++) {
         await update_notifications[i].delete()
     }
-    console.log(notifications);
     if (notifications) {
         res.status(201).json(notifications)
     } else {
