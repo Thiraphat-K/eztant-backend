@@ -93,7 +93,7 @@ const loginUser = asyncHandler(async (req, res) => {
             student_year: user.student_year,
             role: user.role,
             img_url: user.img_url,
-            notifications: await notificationModel.find({ receiver_id: user._id }),
+            notifications: await notificationModel.find({ receiver_id: user._id }).sort({createdAt: -1}),
             token: generateToken(user.id)
         })
     } else {
