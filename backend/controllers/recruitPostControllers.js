@@ -3,9 +3,11 @@ const { type } = require('express/lib/response')
 const { aggregate_config } = require('../configuration/aggregate_config')
 const { day } = require('../configuration/day_config')
 const { populate_recruit_post_config } = require('../configuration/populate_config')
+const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
 const notificationModel = require('../models/notificationModel')
+const receiptModel = require('../models/receiptModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
 const subjectGradeModel = require('../models/subjectGradeModel')
@@ -108,7 +110,7 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
 const setRecruitPost = asyncHandler(async (req, res) => {
     const { subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, schedules, expired } = req.body
     const user = req.user
-    if (user && user.role == 'student') {
+    if (user.role !== 'teacher' && user.role == 'student') {
         res.status(401)
         // throw new Error('User role is not allowed')
         throw new Error('ไม่มีสิทธิ์การเข้าถึง')
@@ -249,6 +251,37 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     }
 })
 
+const deleteRecruitPost = asyncHandler(async (req, res) => {
+    const user = req.user
+    if (user.role !== 'teacher' && user.role == 'student') {
+        res.status(401)
+        // throw new Error('User role is not allowed')
+        throw new Error('ไม่มีสิทธิ์การเข้าถึง')
+    }
+    const recruit_post = await recruitPostModel.findById(req.body['_id'])
+    if (!recruit_post) {
+        res.status(400)
+        throw new Error('ไม่มีข้อมูลโพสต์ดังกล่าว')
+    }
+    if (recruit_post.owner_id.toString() !== user._id.toString()) {
+        res.status(400)
+        throw new Error('ไม่มีสิทธิ์การลบข้อมูลโพสต์')
+    }
+    const community = await communityModel.findById(req.body['_id'])
+
+    await attendanceModel.deleteMany({_id: community.attendances})
+    await receiptModel.deleteOne({community_id: community.receipt})
+    await commentModel.deleteMany({_id: community.comments})
+    await commentModel.deleteMany({_id: recruit_post.comments})
+    await communityPostModel.deleteMany({ _id: community.posts})
+    await communityModel.deleteOne({ _id: community._id, owner_id: user._id })
+    await scheduleModel.deleteMany({ _id: recruit_post.schedules })
+    await recruitPostModel.deleteOne({ _id: req.body['_id'], owner_id: user._id })
+    res.status(200).json({
+        message: 'ลบโพสต์ดังกล่าวสำเร็จ'
+    })
+})
+
 const likeRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
     if (!req.params['_id']) {
@@ -314,6 +347,7 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
     }
     const comment = await commentModel.create({
         owner_id: user._id,
+        recruit_post_id: recruit_post._id,
         comment: req.body['comment']
     })
     if (!comment) {
@@ -524,5 +558,5 @@ const recommendRecruitPost = asyncHandler(async (req, res) => {
 })
 
 module.exports = {
-    getRecruitPost, getRecruitPosts, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost, recommendRecruitPost
+    getRecruitPost, getRecruitPosts, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost, recommendRecruitPost, deleteRecruitPost
 }
