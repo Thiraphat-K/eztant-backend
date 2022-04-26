@@ -12,7 +12,6 @@ const receiptModel = require('../models/receiptModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
 const subjectGradeModel = require('../models/subjectGradeModel')
-communityPostModel
 const userModel = require('../models/userModel')
 const { gradeUitls } = require('../utils/gradeUtils')
 const getRecruitPost = asyncHandler(async (req, res) => {
@@ -270,7 +269,6 @@ const deleteRecruitPost = asyncHandler(async (req, res) => {
         throw new Error('ไม่มีสิทธิ์การลบข้อมูลโพสต์')
     }
     const community = await communityModel.findById(recruit_post.community_id)
-    console.log(community);
     await attendanceModel.deleteMany({_id: community.attendances})
     await receiptModel.deleteOne({community_id: community.receipt})
     await commentModel.deleteMany({_id: community.comments})
