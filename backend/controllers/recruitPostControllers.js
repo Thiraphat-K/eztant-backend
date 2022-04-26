@@ -47,10 +47,12 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
         req.body['search'] = ''
     }
     if (req.body['page'] == undefined) {
-        req.body['page'] = 1
+        req.body['page'] = ''
     }
-    let page = req.body['page'].toString().match(/^[0-9]*$/)
-    if (page == null || page[0] < 1) {
+    let page = req.body['page']?.toString().match(/^[0-9]*$/)
+    if (page[0] == '') {
+        page = undefined
+    } else if (page[0] < 1) {
         page = 1
     } else {
         page = parseInt(page[0])
