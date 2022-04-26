@@ -6,6 +6,9 @@ const recruitPostModel = require("../models/recruitPostModel");
 const communityModel = require("../models/communityModel");
 const scheduleModel = require('../models/scheduleModel');
 const notificationModel = require("../models/notificationModel");
+const subjectGradeModel = require("../models/subjectGradeModel");
+const semesterGradeModel = require("../models/semesterGradeModel");
+const transcriptModel = require("../models/transcriptModel");
 
 // @desc    Register new user
 // @route   POST /api/users/register
@@ -154,7 +157,6 @@ const getUsers = asyncHandler(async (req, res) => {
         users: users,
         total: Math.ceil(users_length / 10)
     })
-    res.status(200).json(users)
 })
 
 const getMe = asyncHandler(async (req, res) => {
@@ -182,6 +184,36 @@ const getMe = asyncHandler(async (req, res) => {
     res.status(200).json(user)
 })
 
+const createTranscript = asyncHandler(async (req, res) => {
+    const user = req.user
+    const transcript_pdf = req.extract_pdf
+    let uniques = [...new Set(transcript_pdf.subject.map(propYoureChecking => propYoureChecking.title))];
+    let allowed
+    let semesters = []
+    uniques.forEach(title => {
+        allowed = [title]
+        let filtered = transcript_pdf.subject.filter(function (item) {
+            return allowed.indexOf(item.title) > -1;
+        });
+        // console.log(filtered);
+        let subjects = []
+        filtered.forEach(course => {
+            course['owner_id'] = user._id
+            subjects.push(course.owner_id)
+        });
+        let semester = {
+            owner_id: user._id,
+            title: title,
+            subjects: subjects
+        }
+        semesters.push(semester)
+    });
+    res.status(200).json({
+        'message': 'Successfully',
+        // "pdf": transcript
+    })
+})
+
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '1d'
@@ -189,5 +221,5 @@ const generateToken = (id) => {
 }
 
 module.exports = {
-    registerUser, updateUser, loginUser, getMe, getUsers
+    registerUser, updateUser, loginUser, getMe, getUsers, createTranscript
 }
