@@ -6,17 +6,20 @@ const asyncHandler = require('express-async-handler')
 const exportPDF = asyncHandler(async (req, res, next) => {
     if (!req.files && !req.files.pdfFile) {
         res.status(400);
-        throw new Error('Please add req.files && req.files.pdfFile')
+        // throw new Error('Please add req.files && req.files.pdfFile')
+        throw new Error('โปรดใส่ไฟล์')
     }
     const user = await userModel.findById(req.user.id)
     if (user.role !== 'student' && user.role == 'teacher') {
         res.status(400)
-        throw new Error('User cannot to upload pdf because user has not student role')
+        // throw new Error('User cannot to upload pdf because user has not student role')
+        throw new Error('เฉพาะนักศึกษาเท่านั้น')
     }
     const result = await PDFparse(req.files.pdfFile, { max: 1 })
     if (!validateTranscript(result.text, result.info, result.metadata)) {
         res.status(400)
-        throw new Error('Transcript is not validated. Please add transcript file again.')
+        // throw new Error('Transcript is not validated. Please add transcript file again.')
+        throw new Error('ทรานสคลิปไม่ถูกต้อง โปรดใส่ใหม่')
     }
     const rawData = (result.text).split(/\n/);
     let subData = rawData.slice(15, rawData.length - 8);
@@ -38,7 +41,8 @@ const exportPDF = asyncHandler(async (req, res, next) => {
     };
     if (mockData['studentID'] !== user.student_id.toString()) {
         res.status(400)
-        throw new Error('User is not owned transcript')
+        // throw new Error('User is not owned transcript')
+        throw new Error('ทรานสคลิปของบุคคลอื่น')
     }
     for (n in subData) {
         let semesterPat = /Semester/, gpsPat = /GPS/;

@@ -220,7 +220,8 @@ const createTranscript = asyncHandler(async (req, res) => {
         semesters.push(semester)
     });
     res.status(200).json({
-        'message': 'Successfully',
+        // 'message': 'Successfully',
+        'message': 'สำเร็จ',
         // "pdf": transcript
     })
 })
