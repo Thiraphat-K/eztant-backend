@@ -6,11 +6,13 @@ const { populate_recruit_post_config } = require('../configuration/populate_conf
 const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
+const communityPostModel = require('../models/communityPostModel')
 const notificationModel = require('../models/notificationModel')
 const receiptModel = require('../models/receiptModel')
 const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
 const subjectGradeModel = require('../models/subjectGradeModel')
+communityPostModel
 const userModel = require('../models/userModel')
 const { gradeUitls } = require('../utils/gradeUtils')
 const getRecruitPost = asyncHandler(async (req, res) => {
@@ -258,7 +260,7 @@ const deleteRecruitPost = asyncHandler(async (req, res) => {
         // throw new Error('User role is not allowed')
         throw new Error('ไม่มีสิทธิ์การเข้าถึง')
     }
-    const recruit_post = await recruitPostModel.findById(req.body['_id'])
+    const recruit_post = await recruitPostModel.findById(req.params['_id'])
     if (!recruit_post) {
         res.status(400)
         throw new Error('ไม่มีข้อมูลโพสต์ดังกล่าว')
@@ -267,13 +269,13 @@ const deleteRecruitPost = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('ไม่มีสิทธิ์การลบข้อมูลโพสต์')
     }
-    const community = await communityModel.findById(req.body['_id'])
-
+    const community = await communityModel.findById(recruit_post.community_id)
+    console.log(community);
     await attendanceModel.deleteMany({_id: community.attendances})
     await receiptModel.deleteOne({community_id: community.receipt})
     await commentModel.deleteMany({_id: community.comments})
     await commentModel.deleteMany({_id: recruit_post.comments})
-    await communityPostModel.deleteMany({ _id: community.posts})
+    await communityPostModel.deleteMany({ _id: community.community_posts})
     await communityModel.deleteOne({ _id: community._id, owner_id: user._id })
     await scheduleModel.deleteMany({ _id: recruit_post.schedules })
     await recruitPostModel.deleteOne({ _id: req.body['_id'], owner_id: user._id })
