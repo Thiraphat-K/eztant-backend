@@ -347,7 +347,6 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
     }
     const comment = await commentModel.create({
         owner_id: user._id,
-        recruit_post_id: recruit_post._id,
         comment: req.body['comment']
     })
     if (!comment) {
