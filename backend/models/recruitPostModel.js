@@ -74,6 +74,12 @@ const recruitPostSchema = mongoose.Schema({
         require: false,
         ref: 'commentModel'
     }],
+    department: {
+        type: String,
+        // require: false,
+        require: [true, 'Please add a department'],
+        maxLength: 25,
+    },
     isOpened: {
         type: Boolean,
         default: true,
