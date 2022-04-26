@@ -131,6 +131,35 @@ const updateUser = asyncHandler(async (req, res) => {
     })
 })
 
+const updatedPassword = asyncHandler(async (req, res) => {
+    if (!req.body['password'] || req.body['password'] == undefined || req.body['password'] == null || req.body['password'] == '') {
+        res.status(400)
+        throw new Error('กรุณาใส่รหัสผ่านเดิม')
+    }
+    if (!req.body['new_password'] || req.body['new_password'] == undefined || req.body['new_password'] == null || req.body['new_password'] == '') {
+        res.status(400)
+        throw new Error('กรุณาใส่รหัสผ่านใหม่')
+    }
+    let user = await userModel.findById(req.user._id)
+
+    if (user && (await bcrypt.compare(req.body['password'], user.password))) {
+        // hash password
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(req.body['new_password'], salt)
+        await userModel.findByIdAndUpdate(user._id, {
+            password: hashedPassword
+        })
+        res.status(200).json({
+            message: 'เปลี่ยนรหัสผ่านใหม่สำเร็จ'
+        })
+    } else {
+        res.status(400)
+        throw new Error('ไม่สามารถเปลี่ยนรหัสผ่านได้ เนื่องจากรหัสผ่านเดิมไม่ถูกต้อง')
+    }
+
+
+})
+
 const getUsers = asyncHandler(async (req, res) => {
     // const {_id , email, firstname, lastname, student_id, role, student_year } = req.body
 
@@ -150,7 +179,7 @@ const getUsers = asyncHandler(async (req, res) => {
     if (req.body['page'] == undefined) {
         req.body['page'] = ''
     }
-    
+
     let page = req.body['page']?.toString().match(/^[0-9]*$/)
     if (page[0] == '') {
         page = undefined
@@ -290,5 +319,5 @@ const generateToken = (id) => {
 }
 
 module.exports = {
-    registerUser, updateUser, loginUser, getMe, getUsers, createTranscript
+    registerUser, updateUser, loginUser, getMe, getUsers, createTranscript, updatedPassword
 }
