@@ -3,35 +3,32 @@ const { default: mongoose } = require("mongoose");
 const transcriptSchema = mongoose.Schema({
     owner_id: {
         type: mongoose.Schema.Types.ObjectId,
-        require: [true, 'Please add a owner_id'],
+        required: [true, 'Please add a owner_id'],
+        ref: 'userModel'
     },
-    subject_id: {
+    firstname: {
         type: String,
-        require: [true, 'Please add a subject_id'],
-        maxLength: 8
+        required: [true, 'Please add a firstname'],
+        maxLength: 25
     },
-    subject_name: {
+    lastname: {
         type: String,
-        require: [true, 'Please add a subject_name'],
-        maxLength: 100
+        required: [true, 'Please add a lastname'],
+        maxLength: 25
     },
-    study_semester: {
+    student_id: {
         type: Number,
-        require: [true, 'Please add a study_semester'],
-        min: [1, 'Please add a study_semester in range 1-4'],
-        max: [4, 'Please add a study_semester in range 1-4']
+        required: false,
+        unique: true,
+        sparse: true,
+        min: [0, 'Please add id in range 00000000-99999999'],
+        max: [99999999, 'Please add id in range 00000000-99999999'],
     },
-    study_year: {
-        type: Number,
-        require: [true, 'Please add a study_year'],
-        min: [1900, 'Please add a study_semester in range 1900-2100'],
-        max: [2100, 'Please add a study_semester in range 1900-2100']
-    },
-    grade: {
-        type: String,
-        require: [true, 'Please add a grade'],
-        maxLength: 4
-    }
+    semesters: [{
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: 'semesterModel'
+    }],
 })
 
 module.exports = mongoose.model('transcriptModel', transcriptSchema)
