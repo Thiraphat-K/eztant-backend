@@ -207,7 +207,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     const schedules_model = await scheduleModel.insertMany(schedules)
     const recruit_post = await recruitPostModel.create({
         owner_id: req.user.id,
-        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired
+        subject_name, subject_id, wage, requirement_grade, requirement_year, description, duty, expired, department:req.user.department
     })
     schedules_model.forEach(schedule => {
         schedule.recruit_post_id = recruit_post._id
