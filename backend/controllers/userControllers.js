@@ -177,11 +177,11 @@ const getMe = asyncHandler(async (req, res) => {
     let communities = await scheduleModel.find({ accepted: user._id }).distinct('recruit_post_id')
 
     if (user.role == 'student') {
-        user['requested'] = await recruitPostModel.find({ _id: recruit_posts })//.populate(populate_recruit_post_config)
+        user['requested'] = await recruitPostModel.find({ _id: recruit_posts }).populate(populate_recruit_post_config)
         user['communities'] = await communityModel.find({ recruit_post_id: communities }).populate('recruit_post_id').select('-attendances')//.populate(populate_community_config)
     }
     if (user.role == 'teacher') {
-        user['recruit_posts'] = await recruitPostModel.find({ owner_id: user._id })//.populate(populate_recruit_post_config)
+        user['recruit_posts'] = await recruitPostModel.find({ owner_id: user._id }).populate(populate_recruit_post_config)
         user['communities'] = await communityModel.find({ recruit_post_id: user['recruit_posts'] })//.populate('recruit_post_id')//.select('-attendances')//.populate(populate_community_config)
             .select('-community_posts -attendances')
             .populate([
