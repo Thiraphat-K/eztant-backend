@@ -44,11 +44,24 @@ const likeCommunityPost = asyncHandler(async (req, res) => {
     const user = req.user
     const community_post = await communityPostModel.findById(req.params['post_id'])
     const likes = await communityPostModel.find({ _id: req.params['post_id'], likes: user._id })
-    if (!likes.length) {
+    if (!likes.length && user._id !== community_post.owner_id) {
         community_post.likes.push(user._id)
+        // create notification
+        const notification = await notificationModel.create({
+            receiver_id: community_post.owner_id,
+            event_type: 'communityModel like',
+            description: `คุณ ${user.firstname} ${user.lastname} ได้กดถูกใจโพสต์รับ TA ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name}`,
+            api_link: community_post.community_id,
+        })
+        notification.save()
     } else {
-        community_post.likes.pull(user._id)
+        community_post.likes.pop(user._id)
     }
+    // if (!likes.length) {
+    //     community_post.likes.push(user._id)
+    // } else {
+    //     community_post.likes.pull(user._id)
+    // }
     await community_post.save()
     const update_post = await communityPostModel.findById(req.params['post_id']).populate([
         {

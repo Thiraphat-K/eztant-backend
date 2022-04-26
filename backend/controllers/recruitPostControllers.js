@@ -249,14 +249,14 @@ const likeRecruitPost = asyncHandler(async (req, res) => {
 
     // check like toggle
     const likes = await recruitPostModel.find({ _id: req.params['_id'], likes: user._id })
-    if (!likes.length) {
+    if (!likes.length && user._id !== recruit_post.owner_id) {
         recruit_post.likes.push(user._id)
         // create notification
         const notification = await notificationModel.create({
             receiver_id: recruit_post.owner_id,
             event_type: 'recruitPostModel like',
             description: `คุณ ${user.firstname} ${user.lastname} ได้กดถูกใจโพสต์รับ TA ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name}`,
-            api_link: `http://localhost:8000/api/recruit_post/${recruit_post._id}`,
+            api_link: recruit_post._id,
         })
         notification.save()
     } else {
