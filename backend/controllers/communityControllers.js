@@ -11,6 +11,7 @@ const userModel = require('../models/userModel')
 
 const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config)
+    community['receipt'] = await receiptModel.findOne({community_id: community._id})
     res.status(201).json(community)
 })
 
@@ -91,7 +92,24 @@ const likeCommunityPost = asyncHandler(async (req, res) => {
 })
 
 const commentCommunityPost = asyncHandler(async (req, res) => {
+    if (!req.params['post_id']) {
+        res.status(401)
+        // throw new Error('recruit_post_id not found')
+        throw new Error('ไม่พบรหัสการรับสมัคร')
+    }
+
     const user = req.user
+    let community_post = await communityPostModel.findById(req.params['post_id'])
+
+    if (!community_post) {
+        res.status(401)
+        // throw new Error('community_post not found')
+        throw new Error('ไม่พบคอมมูนิตี้')
+    }
+    if (req.body['comment']) {
+        res.status(400)
+        throw new Error('กรุณาใส่ความคิดเห็นในโพสต์')
+    }
     const comment = await commentModel.create({
         owner_id: user._id,
         comment: req.body['comment']
@@ -100,13 +118,6 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
         res.status(401)
         // throw new Error('comment not found')
         throw new Error('ไม่พบคอมเมนต์')
-    }
-    let community_post = await communityPostModel.findById(req.params['post_id'])
-
-    if (!community_post) {
-        res.status(401)
-        // throw new Error('community_post not found')
-        throw new Error('ไม่พบคอมมูนิตี้')
     }
     community_post.comments.push(comment._id)
     await community_post.save()
@@ -198,7 +209,7 @@ const setAttendance = asyncHandler(async (req, res) => {
     const notification = await notificationModel.create({
         receiver_id: recruit_post.owner_id,
         event_type: 'attendanceModel attendance',
-        description: `คุณ ${user.firstname} ${user.lastname} ได้ส่งหลักฐานการปฏิบัติงานใน Comunity ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} section ${schedule.section} ของวันที่ ${date.getDay()}/${date.getMonth()+1}/${date.getFullYear()}`,
+        description: `คุณ ${user.firstname} ${user.lastname} ได้ส่งหลักฐานการปฏิบัติงานใน Comunity ของคุณ วิชา ${recruit_post.subject_id} ${recruit_post.subject_name} section ${schedule.section} ของวันที่ ${date.getDay()}/${date.getMonth() + 1}/${date.getFullYear()}`,
         api_link: `community._id`,
     })
     notification.save()
