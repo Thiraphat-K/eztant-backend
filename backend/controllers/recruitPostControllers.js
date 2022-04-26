@@ -494,6 +494,32 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     }
 })
 
+const recommendRecruitPost = asyncHandler(async (req, res) => {
+    const user = req.user
+    if (user.role == 'teacher' && user.role == 'student') {
+        res.status(400)
+        throw new Error('ไม่สามารถแนะนำโพสต์ได้ เนื่องจากเป็นตำแหน่งอาจารย์')
+    }
+    let recruit_posts = await recruitPostModel.find({ isOpened: true }).select('-community_id -updatedAt -__v -schedules -likes -comments -expired')
+    let posts = []
+    let recomments = []
+    recruit_posts.forEach(recruit_post => {
+        posts.push(recruit_post.subject_id)
+    });
+    posts = Array.from(new Set(posts))
+    const subjects = await subjectGradeModel.find({ subject_id: posts, owner_id: user._id })
+    subjects.forEach(subject => {
+        recruit_posts.forEach(recruit_post => {
+            if (subject.subject_id == recruit_post.subject_id && gradeUitls[subject.subject_grade] >= gradeUitls[recruit_post.requirement_grade]) {
+                recomments.push(recruit_post)
+            }
+        });
+    });
+    res.status(200).json({
+        'message': recomments,
+    })
+})
+
 module.exports = {
-    getRecruitPost, getRecruitPosts, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost
+    getRecruitPost, getRecruitPosts, setRecruitPost, likeRecruitPost, commentRecruitPost, requestedRecruitPost, acceptedRecruitPost, recommendRecruitPost
 }
