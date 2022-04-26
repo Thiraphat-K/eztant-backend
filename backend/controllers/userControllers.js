@@ -147,7 +147,11 @@ const getUsers = asyncHandler(async (req, res) => {
         res.status(400)
         throw Error('Users not found')
     }
-    users.push({
+    // users.push({
+    //     total: Math.ceil(users_length / 10)
+    // })
+    res.status(200).json({
+        users: users,
         total: Math.ceil(users_length / 10)
     })
     res.status(200).json(users)
