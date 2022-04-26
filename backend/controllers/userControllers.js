@@ -197,32 +197,64 @@ const getMe = asyncHandler(async (req, res) => {
 
 const createTranscript = asyncHandler(async (req, res) => {
     const user = req.user
+    let transcript_user = await transcriptModel.find({ owner_id: user._id })
+    if (transcript_user.length > 0) {
+        await transcriptModel.deleteMany({ owner_id: user._id })
+    }
+    let subject_user = await subjectGradeModel.find({ owner_id: user._id })
+    if (subject_user.length > 0) {
+        await subjectGradeModel.deleteMany({ owner_id: user._id })
+    }
     const transcript_pdf = req.extract_pdf
+
     let uniques = [...new Set(transcript_pdf.subject.map(propYoureChecking => propYoureChecking.title))];
     let allowed
     let semesters = []
+    allowed = ['ปี 1 เทอม 1', 'ปี 1 เทอม 2',
+        'ปี 2 เทอม 1', 'ปี 2 เทอม 2',
+        'ปี 3 เทอม 1', 'ปี 3 เทอม 2',
+        'ปี 4 เทอม 1', 'ปี 4 เทอม 2']
+    let filtered = transcript_pdf.subject.filter(function (item) {
+        return allowed.indexOf(item.title) > -1;
+    });
+    let subjects = []
+    filtered.forEach(subject => {
+        subject['owner_id'] = user._id.toString()
+    });
+    console.log(filtered);
+    subjects = await subjectGradeModel.insertMany(filtered)
+    subjects.forEach(subject => {
+        subject.save()
+    });
+
     uniques.forEach(title => {
         allowed = [title]
-        let filtered = transcript_pdf.subject.filter(function (item) {
+        filtered = transcript_pdf.subject.filter(function (item) {
             return allowed.indexOf(item.title) > -1;
         });
-        // console.log(filtered);
-        let subjects = []
+        subjects = []
         filtered.forEach(course => {
-            course['owner_id'] = user._id
-            subjects.push(course.owner_id)
+            subjects.push({
+                subject_id: course.id,
+                subject_name: course.name,
+                subject_grade: course.grade,
+            })
         });
         let semester = {
-            owner_id: user._id,
             title: title,
             subjects: subjects
         }
         semesters.push(semester)
     });
-    res.status(200).json({
-        'message': 'Successfully',
-        // "pdf": transcript
-    })
+    let transcript = {
+        owner_id: user._id.toString(),
+        firstname: transcript_pdf.firstname,
+        lastname: transcript_pdf.lastname,
+        semesters: semesters,
+    }
+    transcript_user = await transcriptModel.create(transcript)
+    await transcript_user.save()
+    res.status(200).json(transcript_user)
 })
 
 const generateToken = (id) => {
