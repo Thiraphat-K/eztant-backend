@@ -181,17 +181,15 @@ const getAttendance = asyncHandler(async (req, res) => {
     let attendances
     if (user.role == 'student') {
         const schedule = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
-        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section, community_id: recruit_post.community_id }).sort({ attend_date: -1 })
+        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section, community_id: recruit_post.community_id, attend_date: req.body['attend_date'] }).sort({ attend_date: -1 })
         res.status(200).json(attendances)
-    } else if (user.role == 'teacher') {
+    } else if (user.role == 'teacher' && !req.body['attend_date']) {
         attendances = await attendanceModel.find({ community_id: recruit_post.community_id }).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
         let sections = []
         attendances.forEach(attendance => {
             sections.push(attendance.section)
         });
-
         sections = Array.from(new Set(sections))
-
         let results = []
         sections.forEach(section => {
             let list = []
@@ -206,7 +204,12 @@ const getAttendance = asyncHandler(async (req, res) => {
             })
         });
         res.status(200).json(results)
+    } else if (user.role == 'teacher' && req.body['attend_date']) {
+        attendances = await attendanceModel.find({ community_id: recruit_post.community_id, attend_date: req.body['attend_date']}).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
+        res.status(200).json(attendances)
     }
+
+
     if (!attendances) {
         res.status(400)
         throw new Error('การเข้าสอนไม่ถูกต้อง')
