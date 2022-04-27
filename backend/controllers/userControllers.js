@@ -248,7 +248,7 @@ const getLikesMe = asyncHandler(async (req, res) => {
         res.status(400)
         throw new Error('กรุณาระบุ _id ของไลก์ในรูป Array')
     }
-    const likes =  await recruitPostModel.find({ likes: user._id }).populate(populate_recruit_post_config)
+    const likes = await recruitPostModel.find({ likes: user._id }).populate(populate_recruit_post_config)
     res.status(200).json(likes)
 })
 
