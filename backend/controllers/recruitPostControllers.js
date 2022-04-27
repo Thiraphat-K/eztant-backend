@@ -417,10 +417,15 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     // check requese in other schedules
     const other_requests = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
     if (other_requests && schedule.section !== other_requests.section) {
-        res.status(200)
+        console.log(schedule.section,other_requests.section);
         other_requests.requested.pull(user._id)
+        await other_requests.save()
+        recruit_post = await recruitPostModel.findById(schedule.recruit_post_id).populate(populate_recruit_post_config)
+        // await recruit_post.save()
+        res.status(200).json(recruit_post)
         // throw new Error('User cannot duplicate request in other schedules')
         // throw new Error('ไม่สามารถสมัครในกลุ่มเรียนอื่นได้')
+        return
     }
 
     // check requested toggle
@@ -428,7 +433,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     if (!requested.length) {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
-            res.status(401)
+            res.status(400)
             // throw new Error('failed requested because accepted users exceed')
             throw new Error('ไม่สามารถสมัครได้ (เต็มจำนวนการรับสมัครแล้ว)')
         }
