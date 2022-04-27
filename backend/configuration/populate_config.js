@@ -76,7 +76,7 @@ const populate_community_post_config = [
     },
     {
         path: 'comments',
-        select: '-_id -updatedAt -__v',
+        select: '_id -updatedAt -__v',
         populate: {
             path: 'owner_id',
             select: '_id email firstname lastname role department img_url'
