@@ -89,7 +89,7 @@ const getRecruitPosts = asyncHandler(async (req, res) => {
     let search = []
     if (req.body['search'] !== '') {
         recruit_posts.forEach(user => {
-            if (JSON.stringify(user).replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'])) {
+            if (JSON.stringify(user).toLowerCase().replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'].toLowerCase())) {
                 search.push(user)
             }
         });
