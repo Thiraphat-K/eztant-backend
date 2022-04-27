@@ -10,7 +10,7 @@ const commentSchema = mongoose.Schema({
         type: String,
         // require: [true, 'Please add a comment'],
         require: [true, 'โปรดใส่คอมเมนต์'],
-        maxLength: 200
+        maxLength: 750
     }
 },{
     timestamps: true
