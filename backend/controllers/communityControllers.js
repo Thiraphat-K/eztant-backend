@@ -6,22 +6,23 @@ const communityModel = require('../models/communityModel')
 const communityPostModel = require('../models/communityPostModel')
 const notificationModel = require('../models/notificationModel')
 const receiptModel = require('../models/receiptModel')
+const recruitPostModel = require('../models/recruitPostModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
 const { colorsUtils } = require('../utils/colorsUtils')
 
 const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
-    community['receipt'] = await receiptModel.findOne({community_id: community._id})
-    community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).populate(populate_community_post_config).sort({createdAt:-1})
-    const schedules = await scheduleModel.find({recruit_post_id: req.community.recruit_post_id})
+    community['receipt'] = await receiptModel.findOne({ community_id: community._id })
+    community['community_posts'] = await communityPostModel.find({ community_id: req.community._id }).populate(populate_community_post_config).sort({ createdAt: -1 })
+    const schedules = await scheduleModel.find({ recruit_post_id: req.community.recruit_post_id })
     const ta = []
     schedules.forEach(schedule => {
         schedule.accepted.forEach(accepted => {
             ta.push(accepted)
         });
     });
-    community['student_ta'] = await userModel.find({_id: ta}).sort({student_id:1}).select('firstname lastname student_id student_year department img_url')
+    community['student_ta'] = await userModel.find({ _id: ta }).sort({ student_id: 1 }).select('firstname lastname student_id student_year department img_url')
     res.status(201).json(community)
 })
 
@@ -31,7 +32,7 @@ const setCommunityPost = asyncHandler(async (req, res) => {
     const community_post = await communityPostModel.create({
         owner_id: user._id,
         community_id: community._id,
-        theme_color: colorsUtils[Math.floor(Math.random()*colorsUtils.length)],
+        theme_color: colorsUtils[Math.floor(Math.random() * colorsUtils.length)],
         description: req.body['description'],
         file_url: req.body['file_url'],
     })
@@ -132,6 +133,18 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
     }
     community_post.comments.push(comment._id)
     await community_post.save()
+    const community = await communityModel.findById(community_post.community_id)
+    const recruit_post = await recruitPostModel.findById(community.recruit_post_id)
+    if (user.role !== 'teacher' && user.role == 'student') {
+        // create notification
+        const notification = await notificationModel.create({
+            receiver_id: community_post.owner_id,
+            event_type: 'communityPostModel comment',
+            description: `คุณ ${user.firstname} ${user.lastname} ได้แสดงความคิดเห็นโพสต์คอมมูนิตี้ในวิชา ${recruit_post.subject_id} ${recruit_post.subject_name}`,
+            api_link: community_post.community_id,
+        })
+        notification.save()
+    }
     const update_post = await communityPostModel.findById(req.params['post_id']).populate([
         {
             path: 'owner_id',
@@ -143,7 +156,7 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
         }],
         [{
             path: 'comments',
-            select: '-_id -__v',
+            select: '_id -__v',
             populate: [
                 {
                     path: 'owner_id',
