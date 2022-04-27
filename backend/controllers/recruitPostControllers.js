@@ -489,13 +489,14 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
 
     // check cancelled to request or user_id not found in requested schedule
     const requested_schedule = await scheduleModel.findOne({ _id: req.params['schedule_id'], requested: req.params['user_id'] })
-    if (!requested_schedule) {
+    const accepted_schedule = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
+
+    if (!requested_schedule && !accepted_schedule.length) {
         res.status(401)
         // throw new Error('User cancelled to request or User not found in the schedule')
         throw new Error('ไม่พบผู้สมัคร')
     }
     // check accepted toggle
-    const accepted_schedule = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
     if (!accepted_schedule.length) {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
