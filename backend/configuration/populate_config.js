@@ -34,6 +34,14 @@ const populate_recruit_post_config = [
 ]
 const populate_community_config = [
     {
+        path: 'recruit_post_id',
+        populate: [
+            {
+                path: 'schedules',
+            },
+        ],
+    },
+    {
         path: 'community_posts',
         select: '_id description likes comments createdAt',
         populate: [
