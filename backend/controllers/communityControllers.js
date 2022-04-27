@@ -8,12 +8,12 @@ const notificationModel = require('../models/notificationModel')
 const receiptModel = require('../models/receiptModel')
 const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
+const { colorsUtils } = require('../utils/colorsUtils')
 
 const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
     community['receipt'] = await receiptModel.findOne({community_id: community._id})
     community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).populate(populate_community_post_config).sort({createdAt:-1})
-    // community['community_posts'] = await communityPostModel.find({community_id: req.community_id}).sort({createdAt:-1})
     const schedules = await scheduleModel.find({owner_id: req.community._id})
     const ta = []
     schedules.forEach(schedule => {
@@ -21,9 +21,7 @@ const getCommunity = asyncHandler(async (req, res) => {
             ta.push(accepted)
         });
     });
-    // console.log(ta);
     community['student_ta'] = await userModel.find({_id: ta}).sort({student_id:1}).select('firstname lastname student_id student_year department img_url')
-    // console.log(community['student_ta']);
     res.status(201).json(community)
 })
 
@@ -33,6 +31,7 @@ const setCommunityPost = asyncHandler(async (req, res) => {
     const community_post = await communityPostModel.create({
         owner_id: user._id,
         community_id: community._id,
+        theme_color: colorsUtils[Math.floor(Math.random()*colorsUtils.length)],
         description: req.body['description'],
         file_url: req.body['file_url'],
     })
