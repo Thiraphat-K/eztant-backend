@@ -42,6 +42,13 @@ const populate_community_config = [
             },
             {
                 path: 'schedules',
+                select: '-requested -updatedAt -__v',
+                populate: [
+                    {
+                        path: 'accepted',
+                        select: '_id email firstname lastname studen_id student_year department img_url',
+                    },
+                ]
             },
         ],
     },
@@ -66,7 +73,7 @@ const populate_community_config = [
                 }
             }
         ]
-    }
+    },
 ]
 
 const populate_community_post_config = [
