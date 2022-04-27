@@ -12,6 +12,8 @@ const userModel = require('../models/userModel')
 const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
     community['receipt'] = await receiptModel.findOne({community_id: community._id})
+    community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).sort({createdAt:-1})
+    // community['community_posts'] = await communityPostModel.find({community_id: req.community_id}).sort({createdAt:-1})
     const schedules = await scheduleModel.find({owner_id: req.community._id})
     const ta = []
     schedules.forEach(schedule => {
@@ -21,7 +23,7 @@ const getCommunity = asyncHandler(async (req, res) => {
     });
     // console.log(ta);
     community['student_ta'] = await userModel.find({_id: ta}).sort({student_id:1}).select('firstname lastname student_id student_year department img_url')
-    console.log(community['student_ta']);
+    // console.log(community['student_ta']);
     res.status(201).json(community)
 })
 
