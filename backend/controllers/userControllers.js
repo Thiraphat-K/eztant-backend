@@ -238,8 +238,18 @@ const getMe = asyncHandler(async (req, res) => {
                 },
             ])
     }
-    user['notifications'] = await notificationModel.find({ receiver_id: req.user.id }).sort({ createdAt: -1 }).select('-_id event_type description api_link is_watched createdAt')
+    user['notifications'] = await notificationModel.find({ receiver_id: req.user.id }).sort({ createdAt: -1 }).select('_id event_type description api_link is_watched createdAt')
     res.status(200).json(user)
+})
+
+const getLikesMe = asyncHandler(async (req, res) => {
+    const user = req.user
+    if (req.body['likes'] == undefined || !req.body['likes'].length) {
+        res.status(400)
+        throw new Error('กรุณาระบุ _id ของไลก์ในรูป Array')
+    }
+    const likes =  await recruitPostModel.find({ likes: user._id })//.populate(populate_recruit_post_config)
+    res.status(200).json(likes)
 })
 
 const createTranscript = asyncHandler(async (req, res) => {
@@ -319,5 +329,5 @@ const generateToken = (id) => {
 }
 
 module.exports = {
-    registerUser, updateUser, loginUser, getMe, getUsers, createTranscript, updatedPassword
+    registerUser, updateUser, loginUser, getMe, getUsers, createTranscript, updatedPassword, getLikesMe
 }
