@@ -65,6 +65,27 @@ const populate_community_config = [
     }
 ]
 
+const populate_community_post_config = [
+    {
+        path: 'owner_id',
+        select: '_id email firstname lastname role department img_url'
+    },
+    {
+        path: 'likes',
+        select: '_id email firstname lastname role department img_url',
+    },
+    {
+        path: 'comments',
+        select: '-_id -updatedAt -__v',
+        populate: {
+            path: 'owner_id',
+            select: '_id email firstname lastname role department img_url'
+        }
+    }
+]
+
+
+
 module.exports = {
-    populate_community_config, populate_recruit_post_config
+    populate_community_config, populate_recruit_post_config, populate_community_post_config
 }
