@@ -117,7 +117,7 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
         // throw new Error('community_post not found')
         throw new Error('ไม่พบคอมมูนิตี้')
     }
-    if (req.body['comment']) {
+    if (!req.body['comment']) {
         res.status(400)
         throw new Error('กรุณาใส่ความคิดเห็นในโพสต์')
     }
