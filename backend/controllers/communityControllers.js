@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler')
-const { populate_community_config } = require('../configuration/populate_config')
+const { populate_community_config, populate_community_post_config } = require('../configuration/populate_config')
 const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
@@ -12,7 +12,7 @@ const userModel = require('../models/userModel')
 const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
     community['receipt'] = await receiptModel.findOne({community_id: community._id})
-    community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).sort({createdAt:-1})
+    community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).populate(populate_community_post_config).sort({createdAt:-1})
     // community['community_posts'] = await communityPostModel.find({community_id: req.community_id}).sort({createdAt:-1})
     const schedules = await scheduleModel.find({owner_id: req.community._id})
     const ta = []
