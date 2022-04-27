@@ -9,7 +9,7 @@ router.post('/login', loginUser)
 router.put('/update', protect, updateUser)
 router.put('/update_password', protect, updatedPassword)
 router.get('/getme', protect, getMe)
-router.get('/getme/likes', protect, getLikesMe)
+router.post('/getme/likes', protect, getLikesMe)
 router.post('/getusers', protect, getUsers)
 router.post('/transcript', protect, exportPDF, createTranscript)
 
