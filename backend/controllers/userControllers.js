@@ -218,7 +218,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
 const getMe = asyncHandler(async (req, res) => {
     const user = await userModel.findById(req.user.id).select('_id email firstname lastname role department student_id student_year imgURL').lean()
-    user['likes'] = await recruitPostModel.find({ likes: user._id })
+    user['likes'] = await recruitPostModel.find({ likes: user._id })//.populate(populate_recruit_post_config)
     let recruit_posts = await scheduleModel.find({ requested: user._id }).distinct('recruit_post_id')
     let communities = await scheduleModel.find({ accepted: user._id }).distinct('recruit_post_id')
 
