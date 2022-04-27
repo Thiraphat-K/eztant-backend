@@ -414,12 +414,18 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         throw new Error('ไม่พบตารางสอน')
     }
 
-    // check requese in other schedules
-    const other_requests = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
-    if (other_requests && schedule.section !== other_requests.section) {
-        console.log(schedule.section,other_requests.section);
-        other_requests.requested.pull(user._id)
-        await other_requests.save()
+    const other_requested = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, requested: user._id })
+    const accepted_requested = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
+    if (accepted_requested) {
+        res.status(400)
+        throw new Error('ไม่สามารถยกเลิกการสมัครได้ เนื่องจากอาจารย์ผู้สอนตอบรับการสมัครแล้ว')
+    }
+
+
+    // check request in other schedules
+    if (other_requested && schedule.section !== other_requested.section ) {
+        other_requested.requested.pull(user._id)
+        await other_requested.save()
         recruit_post = await recruitPostModel.findById(schedule.recruit_post_id).populate(populate_recruit_post_config)
         // await recruit_post.save()
         res.status(200).json(recruit_post)
