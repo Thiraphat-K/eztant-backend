@@ -1,5 +1,4 @@
 const asyncHandler = require('express-async-handler')
-const { type } = require('express/lib/response')
 const { aggregate_config } = require('../configuration/aggregate_config')
 const { day } = require('../configuration/day_config')
 const { populate_recruit_post_config } = require('../configuration/populate_config')
@@ -187,7 +186,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
         if (time_from[0] * 60 + time_from[1] >= time_to[0] * 60 + time_to[1]) {
             res.status(400)
             // throw new Error('Please add time_from before time_to')
-            throw new Error('โปรดใส่ช่วงเวลาการสอน')
+            throw new Error('โปรดใส่ช่วงเวลาเริ่มการสอนก่อนหน้าช่วงเวลาจบการสอน')
         }
         schedule_times.push({
             day: day[schedule.day],
@@ -198,7 +197,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
     if (sections.size < schedules.length) {
         res.status(400)
         // throw new Error('Please add section field in schedules without duplicate')
-        throw new Error('โปรดใส่กลุ่มเรียน (ห้ามซ้ำ)')
+        throw new Error('โปรดใส่กลุ่มเรียน (หมายเลขกลุ่มเรียนห้ามซ้ำกัน)')
     }
     for (let i = 0; i < schedule_times.length; i++) {
         for (let j = i + 1; j < schedule_times.length; j++) {
@@ -219,7 +218,7 @@ const setRecruitPost = asyncHandler(async (req, res) => {
                 if (before.time_to > after.time_from) {
                     res.status(400)
                     // throw new Error('Please add time_from and time to field in schedules without intersect interval time in same day')
-                    throw new Error('โปรดใส่ช่วงเวลาการสอน (ไม่อยู่ในคาบเวลาของกลุ่มเรียนอื่น)')
+                    throw new Error('โปรดใส่ช่วงเวลาการสอนที่ไม่อยู่ในคาบเวลาของกลุ่มเรียนอื่น')
                 }
             }
         }
@@ -368,16 +367,6 @@ const commentRecruitPost = asyncHandler(async (req, res) => {
 
 const requestedRecruitPost = asyncHandler(async (req, res) => {
     const user = req.user
-    // check role user
-    if (user.role !== 'student') {
-        res.status(401)
-        // throw new Error('User not allowed to request because the user is not student role')
-        throw new Error('สำหรับนักศึกษาเท่านั้น')
-    }
-    if (!req.params['_id']) {
-        res.status(401)
-        throw new Error('schedule_id not found')
-    }
     const schedule = await scheduleModel.findById(req.params['_id'])
     let recruit_post = await recruitPostModel.findById(schedule.recruit_post_id)
     // check expired date
@@ -427,10 +416,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         other_requested.requested.pull(user._id)
         await other_requested.save()
         recruit_post = await recruitPostModel.findById(schedule.recruit_post_id).populate(populate_recruit_post_config)
-        // await recruit_post.save()
         res.status(200).json(recruit_post)
-        // throw new Error('User cannot duplicate request in other schedules')
-        // throw new Error('ไม่สามารถสมัครในกลุ่มเรียนอื่นได้')
         return
     }
 
