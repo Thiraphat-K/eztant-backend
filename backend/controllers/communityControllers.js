@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler')
-const { populate_community_config, populate_community_post_config } = require('../configuration/populate_config')
+const { populate_community_config, populate_community_post_config, populate_attendance_config } = require('../configuration/populate_config')
 const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
 const communityModel = require('../models/communityModel')
@@ -177,18 +177,18 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
 const getAttendance = asyncHandler(async (req, res) => {
     const user = req.user
     const recruit_post = req.recruit_post
+    console.log(req.body);
     let attendances
     if (user.role == 'student') {
         const schedule = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
-        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section })
-        res.status(201).json(attendances)
+        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section, community_id: recruit_post.community_id}).sort({attend_date: -1})
+        res.status(200).json(attendances)
     } else if (user.role == 'teacher') {
-        attendances = await attendanceModel.find({ community_id: req.params['community_id'] })
-        res.status(201).json(attendances)
+        attendances = await attendanceModel.find({ community_id: req.params['community_id'] }).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
+        res.status(200).json(attendances)
     }
     if (!attendances) {
-        res.status(401)
-        // throw new Error('Invalid Attendance')
+        res.status(400)
         throw new Error('การเข้าสอนไม่ถูกต้อง')
     }
 })
