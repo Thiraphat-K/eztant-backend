@@ -14,7 +14,7 @@ const getCommunity = asyncHandler(async (req, res) => {
     const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
     community['receipt'] = await receiptModel.findOne({community_id: community._id})
     community['community_posts'] = await communityPostModel.find({community_id: req.community._id}).populate(populate_community_post_config).sort({createdAt:-1})
-    const schedules = await scheduleModel.find({owner_id: req.community._id})
+    const schedules = await scheduleModel.find({recruit_post_id: req.community.recruit_post_id})
     const ta = []
     schedules.forEach(schedule => {
         schedule.accepted.forEach(accepted => {
