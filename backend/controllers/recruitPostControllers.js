@@ -502,15 +502,15 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
     }
 
     // check cancelled to request or user_id not found in requested schedule
-    const requested = await scheduleModel.find({ _id: req.params['schedule_id'], requested: req.params['user_id'] })
-    if (!requested.length) {
+    const requested_schedule = await scheduleModel.findOne({ _id: req.params['schedule_id'], requested: req.params['user_id'] })
+    if (!requested_schedule) {
         res.status(401)
         // throw new Error('User cancelled to request or User not found in the schedule')
         throw new Error('ไม่พบผู้สมัคร')
     }
     // check accepted toggle
-    const accepted = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
-    if (!accepted.length) {
+    const accepted_schedule = await scheduleModel.find({ _id: req.params['schedule_id'], accepted: req.params['user_id'] })
+    if (!accepted_schedule.length) {
         // check max_ta
         if (schedule.accepted.length >= schedule.max_ta) {
             res.status(401)
@@ -518,6 +518,7 @@ const acceptedRecruitPost = asyncHandler(async (req, res) => {
             throw new Error('ไม่สามารถตอบรับการสมัครได้ เนื่องจากครบจำนวนการรับสมัครแล้ว')
         }
         schedule.accepted.push(req.params['user_id'])
+        schedule.requested.pull(req.params['user_id'])
         // create notification
         const notification = await notificationModel.create({
             receiver_id: req.params['user_id'],
