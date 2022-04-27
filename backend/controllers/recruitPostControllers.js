@@ -379,7 +379,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
         throw new Error('schedule_id not found')
     }
     const schedule = await scheduleModel.findById(req.params['_id'])
-    const recruit_post = await recruitPostModel.findById(schedule.recruit_post_id)
+    let recruit_post = await recruitPostModel.findById(schedule.recruit_post_id)
     // check expired date
     if (new Date().getTime() > recruit_post.expired.getTime()) {
         recruit_post.isOpened = false
@@ -392,7 +392,7 @@ const requestedRecruitPost = asyncHandler(async (req, res) => {
     // check requirement year
     const set = new Set(recruit_post.requirement_year)
     if (recruit_post.requirement_year.length < set.add(user.student_year).size) {
-        res.status(401)
+        res.status(400)
         // throw new Error('User cannot request because student_year is not allowes requirement_year')
         throw new Error('ไม่สามารถทำการสมัครได้ เนื่องจากระดับชั้นปีไม่เหมาะสม')
     }
