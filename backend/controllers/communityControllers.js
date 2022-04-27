@@ -205,7 +205,7 @@ const getAttendance = asyncHandler(async (req, res) => {
         });
         res.status(200).json(results)
     } else if (user.role == 'teacher' && req.body['attend_date']) {
-        attendances = await attendanceModel.find({ community_id: recruit_post.community_id, attend_date: req.body['attend_date']}).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
+        attendances = await attendanceModel.find({ community_id: recruit_post.community_id, attend_date: req.body['attend_date'] }).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
         res.status(200).json(attendances)
     }
 
@@ -232,8 +232,7 @@ const setAttendance = asyncHandler(async (req, res) => {
 
     const date = new Date(attend_date)
     if (!date) {
-        res.status(401)
-        // throw new Error('Pleas add correct attend_dates ("YYYY-MM-DD")')
+        res.status(400)
         throw new Error('กรุณาใส่วันเวลาการเข้าสอนให้ถูกต้อง (YYYY-MM-DD)')
     }
     if (date.getTime() > new Date().getTime()) {
@@ -243,10 +242,14 @@ const setAttendance = asyncHandler(async (req, res) => {
 
     const community = req.community
     const recruit_post = req.recruit_post
-    // console.log(user);
-    // console.log(community);
-    const schedule = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
 
+    const schedule = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
+    await attendanceModel.deleteMany({
+        owner_id: user._id,
+        community_id: community._id,
+        section: schedule.section,
+        attend_date: date,
+    })
     const attendance = await attendanceModel.create({
         owner_id: user._id,
         community_id: community._id,
