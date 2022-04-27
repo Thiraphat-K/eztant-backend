@@ -15,7 +15,7 @@ const recruitPostSchema = mongoose.Schema({
         type: String,
         // require: [true, 'Please add a subject_name'],
         require: [true, 'โปรดใส่ชื่อวิชา'],
-        maxLength: 100,
+        maxLength: 50,
     },
     subject_id: {
         type: String,
@@ -44,8 +44,8 @@ const recruitPostSchema = mongoose.Schema({
         // min: [1, 'Please add a requirement_year in range 1-8'],
         // max: [8, 'Please add a requirement_year in range 1-8']
         require: [true, 'โปรดใส่ชั้นปีที่ต้องการ'],
-        min: [1, 'โปรดใส่ชั้นปีที่ต้องการ (1-8)'],
-        max: [8, 'โปรดใส่ชั้นปีที่ต้องการ (1-8)']
+        min: [1, 'โปรดใส่ชั้นปีที่ต้องการ (1-4)'],
+        max: [6, 'โปรดใส่ชั้นปีที่ต้องการ (1-4)']
     }],
     description: {
         type: String,
@@ -78,7 +78,7 @@ const recruitPostSchema = mongoose.Schema({
         type: String,
         // require: false,
         require: [true, 'Please add a department'],
-        maxLength: 25,
+        maxLength: 30,
     },
     isOpened: {
         type: Boolean,
