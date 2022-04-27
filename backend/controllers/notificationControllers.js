@@ -14,7 +14,7 @@ const getNotification = asyncHandler(async (req, res) => {
         // throw new Error('User not found')
         throw new Error('ไม่พบบัญชีผู้ใช้งาน')
     }
-    const notifications = await notificationModel.find({ receiver_id: user._id }).select('-_id event_type description api_link is_watched createdAt').sort({createdAt: -1})
+    const notifications = await notificationModel.find({ receiver_id: user._id }).select('event_type description api_link is_watched createdAt').sort({createdAt: -1})
     let update_notifications = await notificationModel.find({ receiver_id: user._id , is_watched: false})
     update_notifications.forEach(notification => {
         notification.is_watched = true
