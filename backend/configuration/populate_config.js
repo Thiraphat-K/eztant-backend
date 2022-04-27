@@ -37,6 +37,10 @@ const populate_community_config = [
         path: 'recruit_post_id',
         populate: [
             {
+                path: 'owner_id',
+                select: '-password -updatedAt -__v'
+            },
+            {
                 path: 'schedules',
             },
         ],
