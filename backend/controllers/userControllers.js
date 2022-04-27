@@ -199,7 +199,7 @@ const getUsers = asyncHandler(async (req, res) => {
     let search = []
     if (req.body['search'] !== '') {
         users.forEach(user => {
-            if (JSON.stringify(user).toLowerCase().replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'].toLowerCase())) {
+            if (JSON.stringify(Object.values(user)).toLowerCase().replace(/[^a-zA-Z0-9ก-๏]/g, '').includes(req.body['search'].toLowerCase())) {
                 search.push(user)
             }
         });
