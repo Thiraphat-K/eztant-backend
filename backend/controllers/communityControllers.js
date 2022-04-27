@@ -236,6 +236,10 @@ const setAttendance = asyncHandler(async (req, res) => {
         // throw new Error('Pleas add correct attend_dates ("YYYY-MM-DD")')
         throw new Error('กรุณาใส่วันเวลาการเข้าสอนให้ถูกต้อง (YYYY-MM-DD)')
     }
+    if (date.getTime() > new Date().getTime()) {
+        res.status(400)
+        throw new Error('ไม่สามารถส่งหลักฐานการปฎิบัติงานล่วงหน้าได้')
+    }
 
     const community = req.community
     const recruit_post = req.recruit_post
