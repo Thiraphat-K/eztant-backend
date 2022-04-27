@@ -10,8 +10,18 @@ const scheduleModel = require('../models/scheduleModel')
 const userModel = require('../models/userModel')
 
 const getCommunity = asyncHandler(async (req, res) => {
-    const community = await communityModel.findById(req.community._id).populate(populate_community_config)
+    const community = await communityModel.findById(req.community._id).populate(populate_community_config).lean()
     community['receipt'] = await receiptModel.findOne({community_id: community._id})
+    const schedules = await scheduleModel.find({owner_id: req.community._id})
+    const ta = []
+    schedules.forEach(schedule => {
+        schedule.accepted.forEach(accepted => {
+            ta.push(accepted)
+        });
+    });
+    // console.log(ta);
+    community['student_ta'] = await userModel.find({_id: ta}).sort({student_id:1}).select('firstname lastname student_id student_year department img_url')
+    console.log(community['student_ta']);
     res.status(201).json(community)
 })
 
