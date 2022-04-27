@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler')
+const { aggregate_attendance_config } = require('../configuration/aggregate_config')
 const { populate_community_config, populate_community_post_config, populate_attendance_config } = require('../configuration/populate_config')
 const attendanceModel = require('../models/attendanceModel')
 const commentModel = require('../models/commentModel')
@@ -177,15 +178,34 @@ const commentCommunityPost = asyncHandler(async (req, res) => {
 const getAttendance = asyncHandler(async (req, res) => {
     const user = req.user
     const recruit_post = req.recruit_post
-    console.log(req.body);
     let attendances
     if (user.role == 'student') {
         const schedule = await scheduleModel.findOne({ recruit_post_id: recruit_post._id, accepted: user._id })
-        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section, community_id: recruit_post.community_id}).sort({attend_date: -1})
+        attendances = await attendanceModel.find({ owner_id: user._id, section: schedule.section, community_id: recruit_post.community_id }).sort({ attend_date: -1 })
         res.status(200).json(attendances)
     } else if (user.role == 'teacher') {
-        attendances = await attendanceModel.find({ community_id: req.params['community_id'] }).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
-        res.status(200).json(attendances)
+        attendances = await attendanceModel.find({ community_id: recruit_post.community_id }).populate(populate_attendance_config).select('-community_id -updatedAt -__v')
+        let sections = []
+        attendances.forEach(attendance => {
+            sections.push(attendance.section)
+        });
+
+        sections = Array.from(new Set(sections))
+
+        let results = []
+        sections.forEach(section => {
+            let list = []
+            attendances.forEach(attendance => {
+                if (section == attendance.section) {
+                    list.push(attendance)
+                }
+            })
+            results.push({
+                section: section,
+                attendance_by_sections: list,
+            })
+        });
+        res.status(200).json(results)
     }
     if (!attendances) {
         res.status(400)
