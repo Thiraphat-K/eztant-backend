@@ -224,7 +224,7 @@ const getMe = asyncHandler(async (req, res) => {
 
     if (user.role == 'student') {
         user['requested'] = await recruitPostModel.find({ _id: recruit_posts }).populate(populate_recruit_post_config)
-        user['communities'] = await communityModel.find({ recruit_post_id: communities })//.populate('recruit_post_id')//.select('-attendances')//.populate(populate_community_config)
+        user['communities'] = await communityModel.find({ recruit_post_id: communities }).populate('recruit_post_id')//.select('-attendances')//.populate(populate_community_config)
         user['transcript'] = await transcriptModel.findOne({ owner_id: user._id })
     }
     if (user.role == 'teacher') {
